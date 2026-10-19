@@ -163,12 +163,12 @@
         /* === Physical Tamagotchi Device Shell (Auténtica Forma Ovalada / Huevo) === */
         .tamagotchi-shell {
             position: relative;
-            width: 375px;
-            max-width: min(375px, 94vw);
-            margin-top: 48px;
+            width: 380px;
+            max-width: min(380px, 94vw);
+            margin-top: 65px;
             background: radial-gradient(circle at 45% 18%, #ffffff 0%, #f4f6fa 28%, #e2e7f2 60%, #cbd3e2 100%);
-            border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
-            padding: 38px 24px 24px;
+            border-radius: 50% 50% 50% 50% / 54% 54% 46% 46%;
+            padding: 32px 20px 24px;
             box-shadow:
                 0 35px 65px -15px rgba(0, 0, 0, 0.85),
                 0 15px 30px rgba(0, 0, 0, 0.6),
@@ -212,15 +212,15 @@
         /* Llavero metálico realista colgado arriba con balanceo suave */
         .keychain-assembly {
             position: absolute;
-            top: -55px;
+            top: -58px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            z-index: 0;
+            z-index: 10;
             pointer-events: none;
-            filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
             animation: swing-keychain 4.5s infinite ease-in-out;
             transform-origin: top center;
         }
@@ -242,30 +242,30 @@
         }
 
         .keychain-ring {
-            width: 36px;
-            height: 36px;
-            border: 5px solid #cbd5e1;
+            width: 34px;
+            height: 34px;
+            border: 4.5px solid #cbd5e1;
             border-radius: 50%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 2px 3px #ffffff;
             background: transparent;
         }
 
         .chain-link {
-            width: 13px;
-            height: 19px;
-            border: 3.5px solid #94a3b8;
+            width: 12px;
+            height: 17px;
+            border: 3px solid #94a3b8;
             border-radius: 8px;
-            margin-top: -6px;
+            margin-top: -5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 2px #ffffff;
             background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 50%, #64748b 100%);
         }
 
         .keychain-mount {
-            width: 28px;
-            height: 14px;
+            width: 24px;
+            height: 12px;
             background: linear-gradient(180deg, #cbd5e1, #94a3b8);
-            border-radius: 8px 8px 0 0;
-            margin-top: -4px;
+            border-radius: 6px 6px 0 0;
+            margin-top: -3px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
             border: 1px solid #e2e8f0;
         }
@@ -273,8 +273,8 @@
         /* Rejilla de altavoz piezo perforada en la carcasa */
         .speaker-grille {
             position: absolute;
-            top: 48px;
-            right: 48px;
+            top: 34px;
+            right: 38px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -331,48 +331,51 @@
         /* Molded Stamp Bandai / Star Wars 187th */
         .shell-stamp {
             text-align: center;
-            margin-top: 14px;
-            font-size: 7px;
+            margin-top: 8px;
+            font-size: 6.5px;
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             color: #94a3b8;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.15);
             user-select: none;
             pointer-events: none;
         }
 
-        /* Franjas de armadura impresas sobre el plástico */
+        /* Franjas de armadura impresas sobre el plástico (Flanquean la pantalla por dentro) */
         .stripe-left,
         .stripe-right {
             position: absolute;
-            top: 40px;
-            width: 14px;
-            height: 95px;
+            top: 105px;
+            width: 8px;
+            height: 110px;
             background: linear-gradient(180deg, var(--tam-purple) 0%, #9333ea 70%, transparent 100%);
-            border-radius: 6px;
-            opacity: 0.85;
-            box-shadow: 0 0 8px rgba(147, 51, 234, 0.4);
+            border-radius: 4px;
+            opacity: 0.75;
+            box-shadow: 0 0 8px rgba(147, 51, 234, 0.3);
+            pointer-events: none;
         }
 
         .stripe-left {
-            left: 20px;
-            transform: rotate(-10deg);
+            left: 24px;
+            transform: rotate(-3deg);
         }
 
         .stripe-right {
-            right: 20px;
-            transform: rotate(10deg);
+            right: 24px;
+            transform: rotate(3deg);
         }
 
         .commander-crest {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 12px 10px;
-            font-size: 10px;
+            width: 268px;
+            margin: 0 auto 6px;
+            padding: 0 4px;
+            font-size: 8.5px;
             font-weight: 700;
-            letter-spacing: 1.5px;
+            letter-spacing: 0.5px;
             color: #64748b;
             text-transform: uppercase;
         }
@@ -439,12 +442,15 @@
             }
         }
 
-        /* === Bisel y Marco Exterior de Pantalla LCD === */
+        /* === Bisel y Marco Exterior de Pantalla LCD (Centrado e insertado en la carcasa) === */
         .screen-bezel {
             position: relative;
+            width: 268px;
+            max-width: 100%;
+            margin: 0 auto;
             background: linear-gradient(160deg, #181528 0%, #0e0b1c 100%);
-            border-radius: 18px;
-            padding: 8px;
+            border-radius: 16px;
+            padding: 6px;
             box-shadow:
                 inset 0 4px 10px rgba(0, 0, 0, 0.9),
                 inset 0 1px 1px rgba(255, 255, 255, 0.2),
@@ -644,32 +650,33 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: 22px;
-            padding: 0 12px;
+            width: 268px;
+            margin: 14px auto 0;
+            padding: 0;
         }
 
         .btn-holder {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .btn-holder.arc-left {
-            transform: translateY(4px);
+            transform: translateY(3px);
         }
 
         .btn-holder.arc-center {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
         }
 
         .btn-holder.arc-right {
-            transform: translateY(4px);
+            transform: translateY(3px);
         }
 
         .btn-well {
-            width: 52px;
-            height: 52px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: linear-gradient(145deg, #161226, #282142);
             box-shadow:
@@ -682,19 +689,19 @@
         }
 
         .rubber-btn {
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #a855f7 0%, #7928ca 50%, #4c1d95 100%);
             border: none;
             box-shadow:
-                0 6px 12px rgba(0, 0, 0, 0.6),
+                0 5px 10px rgba(0, 0, 0, 0.6),
                 inset 0 3px 4px rgba(255, 255, 255, 0.5),
                 inset 0 -4px 6px rgba(0, 0, 0, 0.7);
             color: #ffffff;
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
-            font-size: 15px;
+            font-size: 13px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
             cursor: pointer;
             display: flex;
@@ -715,9 +722,9 @@
         }
 
         .btn-label {
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: #64748b;
             text-transform: uppercase;
         }
@@ -919,40 +926,50 @@
             }
 
             .tamagotchi-shell {
-                margin-top: 42px;
-                padding: 26px 14px 18px;
-                border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;
+                margin-top: 55px;
+                padding: 26px 12px 18px;
+                border-radius: 50% 50% 50% 50% / 54% 54% 46% 46%;
             }
 
             .tamagotchi-shell::before {
                 top: 10px;
-                left: 24px;
-                width: 105px;
-                height: 50px;
+                left: 20px;
+                width: 100px;
+                height: 48px;
             }
 
             .speaker-grille {
-                right: 32px;
-                top: 36px;
+                right: 28px;
+                top: 30px;
             }
 
             .reset-area {
-                right: 12px;
-                top: 215px;
+                right: 10px;
+                top: 200px;
             }
 
             .stripe-left {
-                left: 12px;
-                width: 10px;
+                left: 14px;
+                top: 95px;
+                width: 6px;
+                height: 90px;
             }
 
             .stripe-right {
-                right: 12px;
-                width: 10px;
+                right: 14px;
+                top: 95px;
+                width: 6px;
+                height: 90px;
+            }
+
+            .commander-crest {
+                width: 240px;
+                font-size: 8px;
             }
 
             .screen-bezel {
-                padding: 6px;
+                width: 240px;
+                padding: 5px;
                 border-radius: 14px;
             }
 
@@ -961,33 +978,34 @@
             }
 
             .lcd-icon .icon-sym {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .lcd-icon .icon-sub {
-                font-size: 5.5px;
+                font-size: 5px;
             }
 
             .screen-hud {
-                font-size: 7px;
-                padding: 3px 6px;
+                font-size: 6.5px;
+                padding: 3px 5px;
             }
 
             /* Botones de goma escalados para pantallas táctiles */
             .tamagotchi-buttons {
-                margin-top: 16px;
-                padding: 0 4px;
+                width: 240px;
+                margin-top: 12px;
+                padding: 0;
             }
 
             .btn-well {
-                width: 46px;
-                height: 46px;
+                width: 42px;
+                height: 42px;
             }
 
             .rubber-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 14px;
+                width: 34px;
+                height: 34px;
+                font-size: 12px;
             }
 
             .btn-label {
@@ -1841,18 +1859,19 @@
             clamp(v) { return Math.max(0, Math.min(100, v)); },
 
             rank() {
-                const titles = [
-                    'APRENDIZ (NIVEL 1)',
-                    'SOLDADO SAIYAN (NIVEL 2)',
-                    'GUERRERO JEDI (NIVEL 3)',
-                    'COMANDANTE 187 (NIVEL 4)',
-                    'MAESTRO ULTRA INSTINTO (NIVEL 5)'
+                const ranks = [
+                    { full: 'APRENDIZ (NIVEL 1)', short: 'NIV.1 APRENDIZ' },
+                    { full: 'SOLDADO SAIYAN (NIVEL 2)', short: 'NIV.2 SAIYAN' },
+                    { full: 'GUERRERO JEDI (NIVEL 3)', short: 'NIV.3 JEDI' },
+                    { full: 'COMANDANTE 187 (NIVEL 4)', short: 'NIV.4 COMANDANTE' },
+                    { full: 'MAESTRO ULTRA INSTINTO (NIVEL 5)', short: 'NIV.5 M.INSTINTO' }
                 ];
-                const lvl = Math.min(titles.length, Math.max(1, this.growthLevel || 1));
-                // Crece físicamente de escala con cada semilla del ermitaño
+                const lvl = Math.min(ranks.length, Math.max(1, this.growthLevel || 1));
+                const r = ranks[lvl - 1];
                 const scale = 0.115 + (lvl - 1) * 0.015;
                 return {
-                    title: titles[lvl - 1],
+                    title: r.full,
+                    shortTitle: r.short,
                     scale: scale,
                     level: lvl
                 };
@@ -2127,7 +2146,12 @@
             },
 
             updateUI() {
-                document.getElementById('rank-title').textContent = this.rank().title;
+                const r = this.rank();
+                const rankEl = document.getElementById('rank-title');
+                if (rankEl) {
+                    rankEl.textContent = r.shortTitle;
+                    rankEl.title = r.title;
+                }
                 document.getElementById('val-food').textContent = `${Math.round(this.food)}%`;
                 document.getElementById('val-fun').textContent = `${Math.round(this.fun)}%`;
                 document.getElementById('val-energy').textContent = `${Math.round(this.energy)}%`;
