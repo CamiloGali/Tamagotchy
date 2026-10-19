@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Comandante Vael · Tamagotchi Clone Trooper</title>
+    <meta name="theme-color" content="#7928ca">
+    <meta name="description"
+        content="Tamagotchi Clone Trooper con sable púrpura, Frutas del Diablo y Semillas del Ermitaño.">
+    <!-- PWA Settings -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tamagotchi Vael">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Orbitron:wght@600;800;900&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --tam-body: #f4f6fa;
+            --tam-body-shadow: #c8ced9;
+            --tam-purple: #7928ca;
+            --tam-purple-glow: #b975ff;
+            --tam-purple-dark: #3b0764;
+            --tam-dark: #12101e;
+            --tam-screen-bg: #090915;
+            --tam-bezel: #1e1d2e;
+            --tam-gold: #fbbf24;
+            --tam-cyan: #38bdf8;
+            --tam-green: #34d399;
+            --tam-red: #f87171;
+            --tam-border: #4a4468;
+            --bg-grad: radial-gradient(circle at 50% 30%, #1e1633 0%, #0d0a17 65%, #05040a 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: max(25px, env(safe-area-inset-top, 25px)) 12px max(25px, env(safe-area-inset-bottom, 25px));
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: var(--bg-grad);
+            font-family: 'Chakra Petch', sans-serif;
+            color: #f1f0f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Ambient Stars Background */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background:
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0, 0, 0, 0)),
+                radial-gradient(1.5px 1.5px at 150px 80px, #b975ff, rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 300px 180px, #38bdf8, rgba(0, 0, 0, 0)),
+                radial-gradient(1.5px 1.5px at 240px 320px, #ffffff, rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 80px 240px, #d8b4fe, rgba(0, 0, 0, 0));
+            background-repeat: repeat;
+            background-size: 380px 380px;
+            opacity: 0.6;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 480px;
+            perspective: 1100px;
+        }
+
+        /* Top Header Title */
+        .app-title {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .app-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff 30%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(185, 117, 255, 0.4);
+        }
+
+        .app-title .tagline {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #a78bfa;
+            text-transform: uppercase;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tagline .badge {
+            background: rgba(147, 51, 234, 0.25);
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            color: #d8b4fe;
+        }
+
+        .install-btn {
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            border: 1px solid #d8b4fe;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            animation: pulse-install 2s infinite ease-in-out;
+            transition: transform 0.15s;
+        }
+
+        .install-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 10px #c084fc;
+        }
+
+        @keyframes pulse-install {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px rgba(168, 85, 247, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 12px rgba(192, 132, 252, 0.8);
+            }
+        }
+
+        /* === Physical Tamagotchi Device Shell (Auténtica Forma Ovalada / Huevo) === */
+        .tamagotchi-shell {
+            position: relative;
+            width: 375px;
+            max-width: min(375px, 94vw);
+            margin-top: 48px;
+            background: radial-gradient(circle at 45% 18%, #ffffff 0%, #f4f6fa 28%, #e2e7f2 60%, #cbd3e2 100%);
+            border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+            padding: 38px 24px 24px;
+            box-shadow:
+                0 35px 65px -15px rgba(0, 0, 0, 0.85),
+                0 15px 30px rgba(0, 0, 0, 0.6),
+                0 0 50px rgba(147, 51, 234, 0.25),
+                inset 0 8px 14px rgba(255, 255, 255, 0.98),
+                inset 0 -16px 26px rgba(148, 163, 184, 0.75),
+                inset 0 0 0 4px #ffffff,
+                inset 0 0 0 8px #b8c0d1,
+                0 0 0 2px #64748b;
+            transform-style: preserve-3d;
+            transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        /* Reflejo curvado brillante en el hombro del plástico */
+        .tamagotchi-shell::before {
+            content: "";
+            position: absolute;
+            top: 14px;
+            left: 36px;
+            width: 135px;
+            height: 65px;
+            border-radius: 50% / 60% 60% 40% 40%;
+            background: radial-gradient(ellipse at 40% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+            transform: rotate(-25deg);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Línea de molde de inyección plástica perimetral */
+        .tamagotchi-shell::after {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        /* Llavero metálico realista colgado arriba con balanceo suave */
+        .keychain-assembly {
+            position: absolute;
+            top: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 0;
+            pointer-events: none;
+            filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
+            animation: swing-keychain 4.5s infinite ease-in-out;
+            transform-origin: top center;
+        }
+
+        @keyframes swing-keychain {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            25% {
+                transform: translateX(-50%) rotate(2.5deg);
+            }
+
+            75% {
+                transform: translateX(-50%) rotate(-2.5deg);
+            }
+        }
+
+        .keychain-ring {
+            width: 36px;
+            height: 36px;
+            border: 5px solid #cbd5e1;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 2px 3px #ffffff;
+            background: transparent;
+        }
+
+        .chain-link {
+            width: 13px;
+            height: 19px;
+            border: 3.5px solid #94a3b8;
+            border-radius: 8px;
+            margin-top: -6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 2px #ffffff;
+            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 50%, #64748b 100%);
+        }
+
+        .keychain-mount {
+            width: 28px;
+            height: 14px;
+            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            border-radius: 8px 8px 0 0;
+            margin-top: -4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Rejilla de altavoz piezo perforada en la carcasa */
+        .speaker-grille {
+            position: absolute;
+            top: 48px;
+            right: 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .speaker-hole {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #181528;
+            box-shadow: inset 1px 1px 1.5px #000, 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        /* Pinhole de Reset lateral interactivo con aguja/clip */
+        .reset-area {
+            position: absolute;
+            right: 18px;
+            top: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.1s;
+        }
+
+        .reset-area:hover .reset-hole {
+            box-shadow: inset 1px 1px 2px #000, 0 0 8px #ef4444;
+            transform: scale(1.25);
+        }
+
+        .reset-area:active {
+            transform: scale(0.88);
+        }
+
+        .reset-hole {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #141122;
+            box-shadow: inset 1px 1px 2px #000, 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.15s ease;
+        }
+
+        .reset-label {
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        /* Molded Stamp Bandai / Star Wars 187th */
+        .shell-stamp {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 7px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #94a3b8;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.15);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Franjas de armadura impresas sobre el plástico */
+        .stripe-left,
+        .stripe-right {
+            position: absolute;
+            top: 40px;
+            width: 14px;
+            height: 95px;
+            background: linear-gradient(180deg, var(--tam-purple) 0%, #9333ea 70%, transparent 100%);
+            border-radius: 6px;
+            opacity: 0.85;
+            box-shadow: 0 0 8px rgba(147, 51, 234, 0.4);
+        }
+
+        .stripe-left {
+            left: 20px;
+            transform: rotate(-10deg);
+        }
+
+        .stripe-right {
+            right: 20px;
+            transform: rotate(10deg);
+        }
+
+        .commander-crest {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .led-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #9333ea;
+            box-shadow: 0 0 10px #c084fc, inset 0 1px 2px #fff;
+            animation: pulse-led 1.8s infinite ease-in-out;
+        }
+
+        .led-indicator.alert {
+            background: #ef4444;
+            box-shadow: 0 0 10px #f87171, inset 0 1px 2px #fff;
+            animation: pulse-alert 0.8s infinite ease-in-out;
+        }
+
+        .led-indicator.sleep {
+            background: #38bdf8;
+            box-shadow: 0 0 8px #7dd3fc, inset 0 1px 2px #fff;
+            animation: pulse-sleep 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-led {
+
+            0%,
+            100% {
+                transform: scale(0.95);
+                opacity: 0.6;
+                box-shadow: 0 0 6px #a855f7;
+            }
+
+            50% {
+                transform: scale(1.15);
+                opacity: 1;
+                box-shadow: 0 0 14px #c084fc;
+            }
+        }
+
+        @keyframes pulse-alert {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes pulse-sleep {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+        }
+
+        /* === Bisel y Marco Exterior de Pantalla LCD === */
+        .screen-bezel {
+            position: relative;
+            background: linear-gradient(160deg, #181528 0%, #0e0b1c 100%);
+            border-radius: 18px;
+            padding: 8px;
+            box-shadow:
+                inset 0 4px 10px rgba(0, 0, 0, 0.9),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                0 3px 5px rgba(255, 255, 255, 0.9),
+                0 0 0 2px #2d264a;
+        }
+
+        /* Filas de Iconos LCD (Superior e Inferior - Estilo Tamagotchi Real) */
+        .lcd-icon-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #0d0a1b;
+            padding: 5px 2px;
+        }
+
+        .lcd-icon-row.top {
+            border-bottom: 2px solid #1a162d;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .lcd-icon-row.bottom {
+            border-top: 2px solid #1a162d;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .lcd-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.35;
+            padding: 2px 4px;
+            border-radius: 5px;
+            border: 1px solid transparent;
+            transition: all 0.12s ease;
+        }
+
+        .lcd-icon:hover {
+            opacity: 0.85;
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        .lcd-icon.active {
+            opacity: 1;
+            border-color: #c084fc;
+            background: rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.6);
+            transform: scale(1.15);
+            animation: pulse-icon 0.9s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse-icon {
+            0% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1.18);
+                box-shadow: 0 0 12px rgba(234, 179, 8, 0.7);
+            }
+        }
+
+        .lcd-icon .icon-sym {
+            font-size: 13px;
+            line-height: 1;
+        }
+
+        .lcd-icon .icon-sub {
+            font-size: 6px;
+            font-family: 'Press Start 2P', monospace;
+            color: #c4b5fd;
+            margin-top: 2px;
+        }
+
+        /* HUD Header Bar above canvas */
+        .screen-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(14, 11, 26, 0.9);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+            padding: 4px 8px;
+            border-radius: 10px 10px 0 0;
+            font-size: 10px;
+            color: #c4b5fd;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+        }
+
+        .hud-status-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #a78bfa;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 10px;
+            transition: all 0.15s;
+        }
+
+        .icon-btn:hover {
+            color: #ffffff;
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        /* Glass / CRT Container */
+        .screen-glass {
+            position: relative;
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+            background: #000000;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.95);
+        }
+
+        /* Retro CRT Scanlines & Screen Curve Reflection */
+        .screen-glass::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(rgba(18, 16, 38, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 60%);
+            background-size: 100% 3px, 100% 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        canvas#cv {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            cursor: pointer;
+            background: #070611;
+        }
+
+        /* Dialog / Quote Box inside screen */
+        .speech-bubble {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            background: rgba(16, 12, 32, 0.88);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 9px;
+            color: #f1f0f9;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.2s ease;
+        }
+
+        .speech-bubble .speaker {
+            font-weight: 700;
+            color: #c084fc;
+            margin-right: 4px;
+        }
+
+        /* Mini Minigame Overlay */
+        .minigame-hud {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid #eab308;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            color: #fef08a;
+            font-family: 'Press Start 2P', monospace;
+            z-index: 6;
+        }
+
+        /* === Botones de Goma Táctiles A, B, C en Pozos Circulares Profundos === */
+        .tamagotchi-buttons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 22px;
+            padding: 0 12px;
+        }
+
+        .btn-holder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-holder.arc-left {
+            transform: translateY(4px);
+        }
+
+        .btn-holder.arc-center {
+            transform: translateY(-4px);
+        }
+
+        .btn-holder.arc-right {
+            transform: translateY(4px);
+        }
+
+        .btn-well {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #161226, #282142);
+            box-shadow:
+                inset 0 5px 8px rgba(0, 0, 0, 0.9),
+                0 2px 2px rgba(255, 255, 255, 0.8),
+                0 0 0 2px #ccd4e2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rubber-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #a855f7 0%, #7928ca 50%, #4c1d95 100%);
+            border: none;
+            box-shadow:
+                0 6px 12px rgba(0, 0, 0, 0.6),
+                inset 0 3px 4px rgba(255, 255, 255, 0.5),
+                inset 0 -4px 6px rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            transition: all 0.08s ease;
+        }
+
+        .rubber-btn:active,
+        .rubber-btn.active {
+            transform: translateY(3px) scale(0.95);
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.7),
+                inset 0 3px 6px rgba(0, 0, 0, 0.9),
+                0 0 14px rgba(192, 132, 252, 0.8);
+            background: radial-gradient(circle at 35% 30%, #c084fc 0%, #9333ea 60%, #581c87 100%);
+        }
+
+        .btn-label {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* === Status Bars & Stats Card === */
+        .stats-panel {
+            width: 100%;
+            background: rgba(23, 19, 41, 0.85);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-val {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            color: #a78bfa;
+        }
+
+        /* Futuristic Segmented Bar */
+        .stat-bar-track {
+            height: 10px;
+            background: #110d22;
+            border: 1px solid #3b335a;
+            border-radius: 4px;
+            display: flex;
+            padding: 1px;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .stat-seg {
+            flex: 1;
+            background: #231b40;
+            border-radius: 1px;
+            transition: background 0.2s ease;
+        }
+
+        .stat-seg.fill-food {
+            background: linear-gradient(180deg, #fb923c, #ea580c);
+            box-shadow: 0 0 4px #f97316;
+        }
+
+        .stat-seg.fill-fun {
+            background: linear-gradient(180deg, #c084fc, #9333ea);
+            box-shadow: 0 0 4px #a855f7;
+        }
+
+        .stat-seg.fill-energy {
+            background: linear-gradient(180deg, #38bdf8, #0284c7);
+            box-shadow: 0 0 4px #38bdf8;
+        }
+
+        .stat-seg.fill-clean {
+            background: linear-gradient(180deg, #34d399, #059669);
+            box-shadow: 0 0 4px #10b981;
+        }
+
+        /* === Quick Action Toolbar Below Device === */
+        .action-dock {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 14px;
+        }
+
+        .dock-btn.btn-senzu {
+            border-color: rgba(234, 179, 8, 0.6);
+            background: linear-gradient(145deg, #2a2210 0%, #171b12 100%);
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+        }
+
+        .dock-btn.btn-senzu:hover {
+            border-color: #facc15;
+            background: linear-gradient(145deg, #3d3215 0%, #1f2618 100%);
+            box-shadow: 0 0 16px rgba(250, 204, 21, 0.45);
+        }
+
+        .dock-btn {
+            background: linear-gradient(145deg, #251e44 0%, #16122d 100%);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 12px;
+            padding: 10px 4px;
+            color: #f1f0f9;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .dock-btn .btn-icon {
+            font-size: 18px;
+            filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.5));
+        }
+
+        .dock-btn:hover {
+            border-color: #c084fc;
+            background: linear-gradient(145deg, #372a65 0%, #1f1842 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(168, 85, 247, 0.3);
+        }
+
+        .dock-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Scene Switcher Buttons */
+        .scene-bar {
+            width: 100%;
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .scene-btn {
+            flex: 1;
+            padding: 8px 4px;
+            background: rgba(30, 25, 53, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .scene-btn.active {
+            background: rgba(147, 51, 234, 0.3);
+            border-color: #a855f7;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        }
+
+        /* Keyboard Shortcuts Footer */
+        .controls-hint {
+            margin-top: 14px;
+            font-size: 10px;
+            color: #64748b;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .controls-hint kbd {
+            background: #1e1b30;
+            border: 1px solid #3b3558;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #c084fc;
+        }
+
+        /* === Optimizaciones Responsivas para Móviles (iOS, Android, Plegables) === */
+        @media (max-width: 440px) {
+            body {
+                padding: max(16px, env(safe-area-inset-top, 16px)) 8px max(18px, env(safe-area-inset-bottom, 18px));
+            }
+
+            .app-title h1 {
+                font-size: 18px;
+                letter-spacing: 1px;
+            }
+
+            .app-title .tagline {
+                font-size: 10px;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .tamagotchi-shell {
+                margin-top: 42px;
+                padding: 26px 14px 18px;
+                border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;
+            }
+
+            .tamagotchi-shell::before {
+                top: 10px;
+                left: 24px;
+                width: 105px;
+                height: 50px;
+            }
+
+            .speaker-grille {
+                right: 32px;
+                top: 36px;
+            }
+
+            .reset-area {
+                right: 12px;
+                top: 215px;
+            }
+
+            .stripe-left {
+                left: 12px;
+                width: 10px;
+            }
+
+            .stripe-right {
+                right: 12px;
+                width: 10px;
+            }
+
+            .screen-bezel {
+                padding: 6px;
+                border-radius: 14px;
+            }
+
+            .lcd-icon {
+                padding: 2px 2px;
+            }
+
+            .lcd-icon .icon-sym {
+                font-size: 12px;
+            }
+
+            .lcd-icon .icon-sub {
+                font-size: 5.5px;
+            }
+
+            .screen-hud {
+                font-size: 7px;
+                padding: 3px 6px;
+            }
+
+            /* Botones de goma escalados para pantallas táctiles */
+            .tamagotchi-buttons {
+                margin-top: 16px;
+                padding: 0 4px;
+            }
+
+            .btn-well {
+                width: 46px;
+                height: 46px;
+            }
+
+            .rubber-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+            }
+
+            .btn-label {
+                font-size: 7px;
+            }
+
+            /* Dock de acciones y paneles de stats */
+            .stats-panel {
+                padding: 10px 12px;
+                border-radius: 14px;
+                margin-top: 12px;
+            }
+
+            .stat-header {
+                font-size: 10px;
+            }
+
+            .stat-bar-track {
+                height: 8px;
+            }
+
+            .action-dock {
+                gap: 4px;
+                margin-top: 10px;
+            }
+
+            .dock-btn {
+                padding: 8px 1px;
+                font-size: 10px;
+                border-radius: 10px;
+                gap: 2px;
+            }
+
+            .dock-btn .btn-icon {
+                font-size: 15px;
+            }
+
+            .scene-bar {
+                margin-top: 10px;
+                gap: 4px;
+            }
+
+            .scene-btn {
+                padding: 6px 2px;
+                font-size: 10px;
+            }
+
+            .controls-hint {
+                font-size: 8px;
+                margin-top: 10px;
+                line-height: 1.4;
+            }
+        }
+
+        /* Pantallas muy compactas (320px - 360px: iPhone SE 1, Galaxy Fold desplegado) */
+        @media (max-width: 360px) {
+            .tamagotchi-shell {
+                padding: 22px 10px 16px;
+            }
+
+            .stripe-left,
+            .stripe-right {
+                display: none;
+            }
+
+            .btn-well {
+                width: 40px;
+                height: 40px;
+            }
+
+            .rubber-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+
+            .dock-btn {
+                padding: 6px 0;
+                font-size: 9px;
+            }
+
+            .dock-btn .btn-icon {
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stars-bg"></div>
+
+    <div class="container">
+        <!-- App Title -->
+        <div class="app-title">
+            <h1>Comandante Vael</h1>
+            <div class="tagline">
+                <span>Clone Trooper 187th</span>
+                <span class="badge">Sable Púrpura</span>
+                <span class="badge" id="age-badge">Día 1</span>
+                <button class="badge install-btn" id="btn-install" style="display: none;">📲 Instalar</button>
+            </div>
+        </div>
+
+        <!-- Physical Tamagotchi Device Shell -->
+        <div class="tamagotchi-shell" id="shell">
+            <!-- Llavero metálico articulado -->
+            <div class="keychain-assembly">
+                <div class="keychain-ring"></div>
+                <div class="chain-link"></div>
+                <div class="chain-link"></div>
+                <div class="keychain-mount"></div>
+            </div>
+
+            <!-- Rejilla de altavoz acústico y Pinhole Reset -->
+            <div class="speaker-grille" title="Altavoz Piezoeléctrico">
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+            </div>
+            <div class="reset-area" title="Botón Reset">
+                <div class="reset-hole"></div>
+                <span class="reset-label">RESET</span>
+            </div>
+
+            <!-- Franjas de armadura Clone Trooper 187th -->
+            <div class="stripe-left"></div>
+            <div class="stripe-right"></div>
+
+            <!-- Top Device Header -->
+            <div class="commander-crest">
+                <span>TAC-COM // VAEL</span>
+                <div class="led-indicator" id="status-led" title="Indicador de Estado"></div>
+                <span id="rank-title">APRENDIZ</span>
+            </div>
+
+            <!-- Recessed Screen Frame -->
+            <div class="screen-bezel">
+                <!-- Fila Superior de Iconos LCD -->
+                <div class="lcd-icon-row top" id="lcd-top">
+                    <div class="lcd-icon" data-icon="0" title="Fruta del Diablo (Comer)">
+                        <span class="icon-sym">🍈</span>
+                        <span class="icon-sub">COMIDA</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="1" title="Semilla del Ermitaño (Crecer)">
+                        <span class="icon-sym">🫘</span>
+                        <span class="icon-sub">SEMILLA</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="2" title="Entrenamiento de Sable">
+                        <span class="icon-sym">⚔️</span>
+                        <span class="icon-sub">COMBATE</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="3" title="Luces / Dormir">
+                        <span class="icon-sym">💡</span>
+                        <span class="icon-sub">REPOSO</span>
+                    </div>
+                </div>
+
+                <div class="screen-hud">
+                    <span id="hud-env">BASE ORBITAL</span>
+                    <div class="hud-status-icons">
+                        <span id="hud-phase">DÍA</span>
+                        <button class="icon-btn" id="btn-speed" title="Ritmo de consumo: Tranquilo (Lento)">⏳</button>
+                        <button class="icon-btn" id="btn-sound" title="Alternar Sonido">🔊</button>
+                    </div>
+                </div>
+
+                <div class="screen-glass">
+                    <!-- Game Canvas: 280 x 210 native pixel canvas -->
+                    <canvas id="cv" width="280" height="210" role="img" aria-label="Pantalla del Tamagotchi"></canvas>
+
+                    <!-- Minigame Overlay HUD -->
+                    <div class="minigame-hud" id="mini-hud">
+                        <span>PUNTOS: <b id="mini-score">0</b></span>
+                        <span id="mini-combo">COMBO x0</span>
+                        <span>TIEMPO: <b id="mini-time">15</b>s</span>
+                    </div>
+
+                    <!-- In-screen Speech / Narrative Bubble -->
+                    <div class="speech-bubble" id="speech-bubble">
+                        <div>
+                            <span class="speaker">VAEL:</span>
+                            <span id="speech-text">Sistemas listos. A la espera de órdenes.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila Inferior de Iconos LCD -->
+                <div class="lcd-icon-row bottom" id="lcd-bottom">
+                    <div class="lcd-icon" data-icon="4" title="Pulir Armadura">
+                        <span class="icon-sym">🛡️</span>
+                        <span class="icon-sub">PULIR</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="5" title="Medidores / Estado en LCD">
+                        <span class="icon-sym">📊</span>
+                        <span class="icon-sub">ESTADO</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="6" title="Cambiar Planeta / Escenario">
+                        <span class="icon-sym">🪐</span>
+                        <span class="icon-sub">VIAJE</span>
+                    </div>
+                    <div class="lcd-icon" data-icon="7" title="Informe del Clon / Alerta">
+                        <span class="icon-sym">🚨</span>
+                        <span class="icon-sub">ALERTA</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 Botones Físicos de Goma en Pozos Ergonómicos (A, B, C) -->
+            <div class="tamagotchi-buttons">
+                <div class="btn-holder arc-left">
+                    <div class="btn-well">
+                        <button class="rubber-btn" id="btn-a" title="Botón A: Seleccionar Icono">A</button>
+                    </div>
+                    <span class="btn-label">SELECCIÓN</span>
+                </div>
+                <div class="btn-holder arc-center">
+                    <div class="btn-well">
+                        <button class="rubber-btn" id="btn-b" title="Botón B: Ejecutar / Desviar">B</button>
+                    </div>
+                    <span class="btn-label">EJECUTAR</span>
+                </div>
+                <div class="btn-holder arc-right">
+                    <div class="btn-well">
+                        <button class="rubber-btn" id="btn-c" title="Botón C: Cancelar / Menú">C</button>
+                    </div>
+                    <span class="btn-label">CANCELAR</span>
+                </div>
+            </div>
+
+            <!-- Molded Stamp Bandai / Star Wars 187th -->
+            <div class="shell-stamp">
+                <span>BANDAI 1997 · 187TH LEGION · LUCASFILM LTD.</span>
+            </div>
+        </div>
+
+        <!-- Planet / Scenario Selector Bar -->
+        <div class="scene-bar">
+            <button class="scene-btn active" data-scene="0">🛰️ Estación Orbital</button>
+            <button class="scene-btn" data-scene="1">🏜️ Tatooine (Soles)</button>
+            <button class="scene-btn" data-scene="2">🌌 Templo Kyber</button>
+        </div>
+
+        <!-- Vital Statistics Panel -->
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>🍈 Fruta del Diablo</span>
+                        <span class="stat-val" id="val-food">85%</span>
+                    </div>
+                    <div class="stat-bar-track" id="bar-food"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>⚔️ Entrenamiento</span>
+                        <span class="stat-val" id="val-fun">80%</span>
+                    </div>
+                    <div class="stat-bar-track" id="bar-fun"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>⚡ Energía Vital</span>
+                        <span class="stat-val" id="val-energy">90%</span>
+                    </div>
+                    <div class="stat-bar-track" id="bar-energy"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>🛡️ Armadura (Brillo)</span>
+                        <span class="stat-val" id="val-clean">95%</span>
+                    </div>
+                    <div class="stat-bar-track" id="bar-clean"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Action Dock -->
+        <div class="action-dock">
+            <button class="dock-btn" id="act-feed" title="Alimentar con la Fruta del Diablo (One Piece)">
+                <span class="btn-icon">🍈</span>
+                <span>Akuma</span>
+            </button>
+            <button class="dock-btn btn-senzu" id="act-senzu"
+                title="Semilla del Ermitaño (Dragon Ball): ¡Crecer de tamaño y rango!">
+                <span class="btn-icon">🫘</span>
+                <span>Semilla</span>
+            </button>
+            <button class="dock-btn" id="act-train" title="Entrenar sable de luz y reflejos">
+                <span class="btn-icon">⚡</span>
+                <span>Entrenar</span>
+            </button>
+            <button class="dock-btn" id="act-clean" title="Pulir armadura con droide">
+                <span class="btn-icon">🛡️</span>
+                <span>Pulir</span>
+            </button>
+            <button class="dock-btn" id="act-sleep" title="Modo meditación / Dormir">
+                <span class="btn-icon" id="sleep-icon">💤</span>
+                <span id="sleep-label">Dormir</span>
+            </button>
+        </div>
+
+        <!-- Keyboard Controls Help -->
+        <div class="controls-hint">
+            Controles Tamagotchi: <kbd>A</kbd> Seleccionar Icono · <kbd>B</kbd> Ejecutar / Desviar · <kbd>C</kbd>
+            Cancelar / Telemetría LCD · <kbd>RESET</kbd> Pinhole lateral
+        </div>
+    </div>
+
+    <script>
+        /* =================================================================
+           SINTETIZADOR DE AUDIO (Web Audio API nativo)
+           Genera efectos de sonido clásicos de Star Wars y Tamagotchi
+           ================================================================= */
+        const Sound = {
+            ctx: null,
+            muted: false,
+            init() {
+                if (!this.ctx) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (AC) this.ctx = new AC();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+            toggleMute() {
+                this.muted = !this.muted;
+                document.getElementById('btn-sound').textContent = this.muted ? '🔇' : '🔊';
+                if (!this.muted) this.beep(900, 0.05);
+            },
+            beep(freq = 600, dur = 0.08, type = 'square') {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    g.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + dur);
+                } catch (e) { }
+            },
+            saberIgnite() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const t = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(140, t);
+                    osc.frequency.exponentialRampToValueAtTime(80, t + 0.3);
+                    g.gain.setValueAtTime(0.12, t);
+                    g.gain.linearRampToValueAtTime(0.03, t + 0.25);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.4);
+                } catch (e) { }
+            },
+            saberDeflect() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const t = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(850, t);
+                    osc.frequency.exponentialRampToValueAtTime(160, t + 0.18);
+                    g.gain.setValueAtTime(0.18, t);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.2);
+                } catch (e) { }
+            },
+            forcePush() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const t = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(90, t);
+                    osc.frequency.exponentialRampToValueAtTime(280, t + 0.15);
+                    osc.frequency.exponentialRampToValueAtTime(60, t + 0.35);
+                    g.gain.setValueAtTime(0.15, t);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.38);
+                } catch (e) { }
+            },
+            eatSound() {
+                this.beep(400, 0.05, 'triangle');
+                setTimeout(() => this.beep(600, 0.06, 'triangle'), 80);
+                setTimeout(() => this.beep(800, 0.08, 'triangle'), 160);
+            },
+            devilFruitSound() {
+                if (this.muted) return;
+                this.init();
+                this.beep(520, 0.08, 'sawtooth');
+                setTimeout(() => this.beep(780, 0.1, 'sine'), 70);
+                setTimeout(() => this.beep(1040, 0.15, 'triangle'), 150);
+            },
+            senzuSound() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const t = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(260, t);
+                    osc.frequency.exponentialRampToValueAtTime(1200, t + 0.35);
+                    g.gain.setValueAtTime(0.2, t);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+                    osc.connect(g);
+                    g.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.45);
+                    setTimeout(() => this.beep(1500, 0.25, 'sine'), 300);
+                } catch (e) { }
+            },
+            shineSound() {
+                this.beep(1200, 0.05, 'sine');
+                setTimeout(() => this.beep(1600, 0.08, 'sine'), 80);
+                setTimeout(() => this.beep(2100, 0.12, 'sine'), 160);
+            },
+            sleepSound() {
+                this.beep(400, 0.12, 'sine');
+                setTimeout(() => this.beep(300, 0.18, 'sine'), 120);
+                setTimeout(() => this.beep(200, 0.25, 'sine'), 240);
+            },
+            piezoPipA() {
+                this.beep(2048, 0.035, 'square');
+            },
+            piezoChirpB() {
+                this.beep(1536, 0.04, 'square');
+                setTimeout(() => this.beep(2048, 0.06, 'square'), 40);
+            },
+            piezoCancelC() {
+                this.beep(2048, 0.04, 'square');
+                setTimeout(() => this.beep(1024, 0.06, 'square'), 40);
+            },
+            piezoAlarm() {
+                for (let i = 0; i < 4; i++) {
+                    setTimeout(() => this.beep(1800, 0.065, 'square'), i * 130);
+                }
+            },
+            piezoReset() {
+                this.beep(520, 0.08, 'sawtooth');
+                setTimeout(() => this.beep(1040, 0.1, 'square'), 100);
+                setTimeout(() => this.beep(2080, 0.2, 'square'), 220);
+            }
+        };
+
+        /* =================================================================
+           CARGA DE SPRITES DEL COMANDANTE VAEL (Del diseño del usuario)
+           ================================================================= */
+        const Sprites = {
+            idle: new Image(),
+            sleep: new Image(),
+            attack: new Image(),
+            walk: new Image(),
+            devilFruit: new Image(),
+            senzuBean: new Image(),
+            loaded: false,
+            init() {
+                let loadCount = 0;
+                const total = 6;
+                const onLoaded = () => {
+                    loadCount++;
+                    if (loadCount >= total) this.loaded = true;
+                };
+                this.idle.src = './vael_idle.png';
+                this.idle.onload = onLoaded;
+                this.sleep.src = './vael_sleep.png';
+                this.sleep.onload = onLoaded;
+                this.attack.src = './vael_attack.png';
+                this.attack.onload = onLoaded;
+                this.walk.src = './vael_walk.png';
+                this.walk.onload = onLoaded;
+                this.devilFruit.src = './devil_fruit.png';
+                this.devilFruit.onload = onLoaded;
+                this.senzuBean.src = './senzu_bean.png';
+                this.senzuBean.onload = onLoaded;
+            }
+        };
+        Sprites.init();
+
+        /* =================================================================
+           CONFIGURACIÓN DEL CANVAS Y ESCENARIOS
+           ================================================================= */
+        const cv = document.getElementById('cv');
+        const cx = cv.getContext('2d');
+        const W = cv.width;
+        const H = cv.height;
+
+        // Escenarios galácticos en pixel art
+        const Scenes = [
+            {
+                name: 'BASE ORBITAL',
+                color: '#7c3aed',
+                drawBg(g, f, phase) {
+                    // Fondo espacial
+                    g.fillStyle = '#060411';
+                    g.fillRect(0, 0, W, H);
+
+                    // Estrellas titilantes
+                    for (let i = 0; i < 45; i++) {
+                        const sx = (i * 47) % W;
+                        const sy = (i * 29) % 115;
+                        const twinkle = (Math.sin(f * 0.08 + i) + 1) * 0.5;
+                        g.fillStyle = `rgba(216, 180, 254, ${0.3 + twinkle * 0.7})`;
+                        g.fillRect(sx, sy, 1.5, 1.5);
+                    }
+
+                    // Planeta gigante con anillos en el fondo
+                    const px = 210, py = 50;
+                    g.fillStyle = '#2e1065';
+                    g.beginPath(); g.arc(px, py, 26, 0, Math.PI * 2); g.fill();
+                    g.fillStyle = '#581c87';
+                    g.beginPath(); g.arc(px + 4, py - 4, 22, 0, Math.PI * 2); g.fill();
+                    // Anillo
+                    g.strokeStyle = 'rgba(216, 180, 254, 0.4)';
+                    g.lineWidth = 2;
+                    g.beginPath();
+                    g.ellipse(px, py, 42, 10, -0.2, 0, Math.PI * 2);
+                    g.stroke();
+
+                    // Nave patrulla imperial pasando en el fondo
+                    const shipX = (f * 0.8) % (W + 60) - 30;
+                    const shipY = 40 + Math.sin(f * 0.03) * 6;
+                    g.fillStyle = '#94a3b8';
+                    g.fillRect(shipX, shipY, 14, 3);
+                    g.fillStyle = '#e2e8f0';
+                    g.fillRect(shipX + 4, shipY - 2, 5, 2);
+                    g.fillStyle = (f % 10 < 5) ? '#ef4444' : '#38bdf8';
+                    g.fillRect(shipX - 2, shipY + 1, 2, 1);
+
+                    // Ventanal blindado de la estación
+                    g.strokeStyle = '#272044';
+                    g.lineWidth = 3;
+                    g.strokeRect(4, 4, W - 8, 140);
+                    g.strokeStyle = '#3b325d';
+                    g.lineWidth = 1;
+                    g.strokeRect(6, 6, W - 12, 136);
+
+                    // Pilares estructurales
+                    g.fillStyle = '#18132d';
+                    g.fillRect(0, 0, 18, 150);
+                    g.fillRect(W - 18, 0, 18, 150);
+                    g.fillRect(75, 0, 8, 140);
+                    g.fillRect(W - 83, 0, 8, 140);
+
+                    // Luces de consola
+                    const colors = ['#ef4444', '#34d399', '#38bdf8', '#c084fc'];
+                    for (let i = 0; i < 4; i++) {
+                        g.fillStyle = colors[(i + Math.floor(f / 15)) % 4];
+                        g.fillRect(2, 60 + i * 8, 3, 3);
+                        g.fillRect(W - 5, 60 + i * 8, 3, 3);
+                    }
+
+                    // Suelo de la cubierta con rejilla hexagonal
+                    g.fillStyle = '#1c1735';
+                    g.fillRect(0, 145, W, H - 145);
+                    g.fillStyle = '#2c254e';
+                    g.fillRect(0, 145, W, 2);
+                    // Línea luminosa de guía en el piso
+                    g.fillStyle = 'rgba(168, 85, 247, 0.4)';
+                    g.fillRect(0, 148, W, 2);
+                    // Placas de acero
+                    for (let tx = 0; tx < W; tx += 35) {
+                        g.fillStyle = '#140f29';
+                        g.fillRect(tx, 150, 1, H - 150);
+                    }
+                }
+            },
+            {
+                name: 'TATOOINE',
+                color: '#f59e0b',
+                drawBg(g, f, phase) {
+                    // Cielo de atardecer desértico
+                    const sky = g.createLinearGradient(0, 0, 0, 145);
+                    sky.addColorStop(0, '#581c87');
+                    sky.addColorStop(0.4, '#c2410c');
+                    sky.addColorStop(0.8, '#f97316');
+                    sky.addColorStop(1, '#fde047');
+                    g.fillStyle = sky;
+                    g.fillRect(0, 0, W, 145);
+
+                    // Sol 1 (Dorado brillante)
+                    g.fillStyle = '#fef08a';
+                    g.beginPath(); g.arc(60, 45, 16, 0, Math.PI * 2); g.fill();
+                    g.fillStyle = 'rgba(254, 240, 138, 0.4)';
+                    g.beginPath(); g.arc(60, 45, 22, 0, Math.PI * 2); g.fill();
+
+                    // Sol 2 (Rojizo distante)
+                    g.fillStyle = '#f87171';
+                    g.beginPath(); g.arc(100, 32, 9, 0, Math.PI * 2); g.fill();
+
+                    // Dunas lejanas
+                    g.fillStyle = '#9a3412';
+                    g.beginPath();
+                    g.moveTo(0, 145);
+                    for (let x = 0; x <= W; x += 10) {
+                        const dy = 125 + Math.sin(x * 0.03) * 12;
+                        g.lineTo(x, dy);
+                    }
+                    g.lineTo(W, 145);
+                    g.fill();
+
+                    // Vaporizador de humedad en el horizonte
+                    g.fillStyle = '#431407';
+                    g.fillRect(230, 95, 3, 40);
+                    g.fillRect(225, 105, 13, 2);
+                    g.fillRect(227, 115, 9, 2);
+
+                    // Suelo de arena y duna frontal
+                    g.fillStyle = '#ea580c';
+                    g.fillRect(0, 145, W, H - 145);
+                    g.fillStyle = '#f97316';
+                    g.fillRect(0, 145, W, 2);
+
+                    // Partículas de polvo de arena flotando
+                    for (let i = 0; i < 15; i++) {
+                        const px = (i * 23 + f * 1.2) % W;
+                        const py = 148 + (i * 7) % 55;
+                        g.fillStyle = 'rgba(254, 215, 170, 0.6)';
+                        g.fillRect(px, py, 1.5, 1);
+                    }
+                }
+            },
+            {
+                name: 'TEMPLO KYBER',
+                color: '#b975ff',
+                drawBg(g, f, phase) {
+                    // Caverna mística violeta
+                    const cave = g.createLinearGradient(0, 0, 0, 145);
+                    cave.addColorStop(0, '#170b2e');
+                    cave.addColorStop(0.7, '#2e1065');
+                    cave.addColorStop(1, '#4c1d95');
+                    g.fillStyle = cave;
+                    g.fillRect(0, 0, W, 145);
+
+                    // Estalactitas de la caverna
+                    g.fillStyle = '#140a24';
+                    const stal = [20, 60, 110, 160, 210, 260];
+                    stal.forEach((sx, idx) => {
+                        g.beginPath();
+                        g.moveTo(sx - 15, 0);
+                        g.lineTo(sx + 15, 0);
+                        g.lineTo(sx, 25 + (idx % 3) * 12);
+                        g.fill();
+                    });
+
+                    // Cristales Kyber gigantes púrpuras que emiten luz
+                    const crystals = [[40, 145, 18, 55], [235, 145, 22, 65], [195, 145, 12, 35]];
+                    crystals.forEach(([cx, cy, cw, ch]) => {
+                        const glow = (Math.sin(f * 0.06 + cx) + 1) * 0.4;
+                        g.fillStyle = `rgba(192, 132, 252, ${0.4 + glow * 0.6})`;
+                        g.beginPath();
+                        g.moveTo(cx, cy);
+                        g.lineTo(cx + cw * 0.5, cy - ch);
+                        g.lineTo(cx + cw, cy);
+                        g.fill();
+                        // Aristas brillantes del cristal
+                        g.strokeStyle = '#ffffff';
+                        g.lineWidth = 1;
+                        g.stroke();
+                    });
+
+                    // Suelo de piedra antigua
+                    g.fillStyle = '#1c1033';
+                    g.fillRect(0, 145, W, H - 145);
+                    g.fillStyle = '#7e22ce';
+                    g.fillRect(0, 145, W, 2);
+
+                    // Motes de energía de la Fuerza flotando
+                    for (let i = 0; i < 18; i++) {
+                        const mx = (i * 31 + Math.sin(f * 0.02 + i) * 15) % W;
+                        const my = 135 - ((f * 0.4 + i * 16) % 95);
+                        const a = (Math.sin(f * 0.05 + i) + 1) * 0.5;
+                        g.fillStyle = `rgba(216, 180, 254, ${a})`;
+                        g.fillRect(mx, my, 2, 2);
+                    }
+                }
+            }
+        ];
+
+        /* =================================================================
+           ESTADO DEL JUEGO (TAMAGOTCHI PET LOGIC)
+           ================================================================= */
+        const Pet = {
+            name: 'Vael',
+            food: 85,
+            fun: 80,
+            energy: 90,
+            clean: 95,
+            sleeping: false,
+            day: 1,
+            growthLevel: 1, // 1 a 5: Crece con las Semillas del Ermitaño
+            ticks: 0,
+            frame: 0,
+            sceneIdx: 0,
+            decaySpeed: 'tranquilo', // 'tranquilo', 'normal', 'rapido'
+            kiAuraTimer: 0,
+            itemAnim: null,
+            selectedIcon: -1,
+            showLcdStats: false,
+
+            // Posición y física
+            x: 95,
+            targetX: 95,
+            dir: 1,
+            state: 'idle', // 'idle', 'walk', 'attack', 'sleep', 'feed', 'clean'
+            stateTimer: 0,
+            jumpY: 0,
+            bob: 0,
+
+            // Minijuego
+            inMinigame: false,
+            score: 0,
+            combo: 0,
+            gameTimer: 0,
+            remoteDroid: { x: 40, y: 50, vx: 2, vy: 1.5, shootTimer: 30 },
+            bolts: [],
+
+            // Partículas visuales
+            particles: [],
+
+            // Citas del Comandante
+            quotes: [
+                '¡Por la República Galáctica!',
+                'El sable púrpura vibra con la Fuerza.',
+                'Armadura reforzada y lista para combate.',
+                'Detecto perturbaciones en el sector.',
+                'Reflejos afinados. Orden 187 en espera.',
+                'Un buen soldado siempre mantiene la calma.'
+            ],
+
+            init() {
+                // Recuperar estado guardado si existe
+                try {
+                    const saved = localStorage.getItem('vael_tamagotchi_save');
+                    if (saved) {
+                        const d = JSON.parse(saved);
+                        this.food = d.food ?? 85;
+                        this.fun = d.fun ?? 80;
+                        this.energy = d.energy ?? 90;
+                        this.clean = d.clean ?? 95;
+                        this.day = d.day ?? 1;
+                        this.growthLevel = d.growthLevel ?? 1;
+                        this.sceneIdx = d.sceneIdx ?? 0;
+                        this.decaySpeed = d.decaySpeed ?? 'tranquilo';
+                    }
+                } catch (e) { }
+                const speedBtn = document.getElementById('btn-speed');
+                if (speedBtn) {
+                    if (this.decaySpeed === 'tranquilo') { speedBtn.textContent = '⏳'; speedBtn.title = 'Ritmo: Tranquilo (Lento)'; }
+                    else if (this.decaySpeed === 'normal') { speedBtn.textContent = '⚡'; speedBtn.title = 'Ritmo: Normal'; }
+                    else { speedBtn.textContent = '⏱️'; speedBtn.title = 'Ritmo: Dinámico'; }
+                }
+                this.updateUI();
+            },
+
+            save() {
+                try {
+                    localStorage.setItem('vael_tamagotchi_save', JSON.stringify({
+                        food: this.food,
+                        fun: this.fun,
+                        energy: this.energy,
+                        clean: this.clean,
+                        day: this.day,
+                        growthLevel: this.growthLevel,
+                        sceneIdx: this.sceneIdx,
+                        decaySpeed: this.decaySpeed
+                    }));
+                } catch (e) { }
+            },
+
+            say(text) {
+                const bubble = document.getElementById('speech-bubble');
+                const textElem = document.getElementById('speech-text');
+                textElem.textContent = text;
+                bubble.style.opacity = '1';
+                clearTimeout(this._sayTimeout);
+                this._sayTimeout = setTimeout(() => {
+                    // Mantener visible pero no ocultar completamente
+                }, 4000);
+            },
+
+            selectIcon(idx) {
+                this.selectedIcon = idx;
+                document.querySelectorAll('.lcd-icon').forEach((el) => {
+                    const iconId = parseInt(el.getAttribute('data-icon'));
+                    el.classList.toggle('active', iconId === this.selectedIcon);
+                });
+            },
+
+            iconAction(idx) {
+                Sound.piezoChirpB();
+                if (idx === 0) {
+                    this.feed();
+                } else if (idx === 1) {
+                    this.eatSenzu();
+                } else if (idx === 2) {
+                    if (this.inMinigame) this.swingLightsaberDeflect();
+                    else this.startMinigame();
+                } else if (idx === 3) {
+                    this.toggleSleep();
+                } else if (idx === 4) {
+                    this.polish();
+                } else if (idx === 5) {
+                    this.showLcdStats = !this.showLcdStats;
+                    if (this.showLcdStats) {
+                        this.say('Telemetría táctica LCD desplegada en pantalla.');
+                    }
+                } else if (idx === 6) {
+                    this.setScene((this.sceneIdx + 1) % Scenes.length);
+                } else if (idx === 7) {
+                    Sound.piezoAlarm();
+                    this.say(`INFORME CLON: Fruta: ${Math.round(this.food)}% | Batería: ${Math.round(this.energy)}% | Nivel: ${this.growthLevel}.`);
+                }
+            },
+
+            addParticle(type, x, y, vx, vy, life, col) {
+                this.particles.push({ type, x, y, vx, vy, life, maxLife: life, col });
+            },
+
+            clamp(v) { return Math.max(0, Math.min(100, v)); },
+
+            rank() {
+                const titles = [
+                    'APRENDIZ (NIVEL 1)',
+                    'SOLDADO SAIYAN (NIVEL 2)',
+                    'GUERRERO JEDI (NIVEL 3)',
+                    'COMANDANTE 187 (NIVEL 4)',
+                    'MAESTRO ULTRA INSTINTO (NIVEL 5)'
+                ];
+                const lvl = Math.min(titles.length, Math.max(1, this.growthLevel || 1));
+                // Crece físicamente de escala con cada semilla del ermitaño
+                const scale = 0.115 + (lvl - 1) * 0.015;
+                return {
+                    title: titles[lvl - 1],
+                    scale: scale,
+                    level: lvl
+                };
+            },
+
+            // Acciones del Tamagotchi: Comer Fruta del Diablo (One Piece)
+            feed() {
+                if (this.sleeping) return this.say('El comandante está en meditación.');
+                if (this.food >= 98) return this.say('Poder de la Fruta del Diablo al máximo.');
+
+                Sound.devilFruitSound();
+                this.food = this.clamp(this.food + 35);
+                this.clean = this.clamp(this.clean - 3);
+                this.state = 'feed';
+                this.stateTimer = 35;
+
+                // Animación de Fruta del Diablo cayendo
+                this.itemAnim = {
+                    type: 'fruit',
+                    x: this.x + 40,
+                    y: 10,
+                    targetY: 100,
+                    vy: 3.2
+                };
+
+                const quotes = [
+                    '¡Fruta del Diablo Akuma no Mi consumida! ¡El Haki despierta!',
+                    '¡Sabor terrible, pero un poder descomunal corre por mi armadura!',
+                    '¡Gomu Gomu no... Sable Púrpura activado!',
+                    '¡Poder de la Fruta del Diablo asimilado a la Fuerza!'
+                ];
+                this.say(quotes[Math.floor(Math.random() * quotes.length)]);
+
+                // Espirales mágicas y destellos púrpuras
+                for (let i = 0; i < 16; i++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const spd = 1.2 + Math.random() * 2.5;
+                    this.addParticle('swirl', this.x + 45, 105, Math.cos(ang) * spd, Math.sin(ang) * spd, 35, '#c084fc');
+                }
+                this.updateUI();
+                this.save();
+            },
+
+            // Comer Semilla del Ermitaño (Dragon Ball) -> ¡CRECIMIENTO Y RECUPERACIÓN TOTAL!
+            eatSenzu() {
+                if (this.sleeping) return this.say('Despierta al comandante antes de darle la semilla.');
+
+                Sound.senzuSound();
+                const prevLvl = this.growthLevel || 1;
+                this.growthLevel = Math.min(5, (this.growthLevel || 1) + 1);
+
+                // Restauración legendaria de Dragon Ball (100% de stats)
+                this.energy = 100;
+                this.food = 100;
+                this.clean = 100;
+                this.fun = 100;
+                this.jumpY = -15;
+                this.kiAuraTimer = 75; // Aura Ki dorada
+                this.state = 'attack';
+                this.stateTimer = 45;
+
+                // Animación de la semilla del ermitaño cayendo con resplandor
+                this.itemAnim = {
+                    type: 'senzu',
+                    x: this.x + 45,
+                    y: 10,
+                    targetY: 95,
+                    vy: 3.5
+                };
+
+                const currentRank = this.rank();
+                if (this.growthLevel > prevLvl) {
+                    this.say(`¡CRECIMIENTO! La Semilla del Ermitaño aumentó tu tamaño a: ${currentRank.title}.`);
+                } else {
+                    this.say('¡Semilla del Ermitaño consumida! Salud, energía y ki al 100%.');
+                }
+
+                // Partículas de Ki dorado ascendente
+                for (let i = 0; i < 28; i++) {
+                    const vx = (Math.random() - 0.5) * 2.8;
+                    const vy = -1.5 - Math.random() * 3.5;
+                    this.addParticle('ki', this.x + 20 + Math.random() * 50, 150, vx, vy, 40, '#fde047');
+                }
+                this.updateUI();
+                this.save();
+            },
+
+            train() {
+                if (this.sleeping) return this.say('Despierta al comandante antes de entrenar.');
+                if (this.energy < 15) return this.say('Energía insuficiente. Requiere descanso.');
+
+                Sound.saberIgnite();
+                setTimeout(() => Sound.forcePush(), 200);
+
+                this.fun = this.clamp(this.fun + 30);
+                this.energy = this.clamp(this.energy - 14);
+                this.food = this.clamp(this.food - 6);
+                this.clean = this.clamp(this.clean - 5);
+                this.state = 'attack';
+                this.stateTimer = 35;
+                this.jumpY = -12;
+                this.say('¡Forma Vaapad! Estocada de sable y empuje de la Fuerza.');
+
+                // Chispas de energía púrpura
+                for (let i = 0; i < 22; i++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const spd = 1.5 + Math.random() * 3.5;
+                    this.addParticle('spark', this.x + 35, 110, Math.cos(ang) * spd, Math.sin(ang) * spd, 28, '#b975ff');
+                }
+                this.updateUI();
+                this.save();
+            },
+
+            polish() {
+                if (this.sleeping) return this.say('Descansando. No interrumpas el ciclo.');
+                Sound.shineSound();
+                this.clean = 100;
+                this.fun = this.clamp(this.fun + 10);
+                this.state = 'clean';
+                this.stateTimer = 30;
+                this.say('Placas de armadura pulidas y libres de residuos.');
+
+                // Estrellas de brillo sobre la armadura
+                for (let i = 0; i < 12; i++) {
+                    this.addParticle('star', this.x + 20 + Math.random() * 60, 80 + Math.random() * 60, (Math.random() - 0.5) * 0.8, -0.6, 32, '#ffffff');
+                }
+                this.updateUI();
+                this.save();
+            },
+
+            toggleSleep() {
+                this.sleeping = !this.sleeping;
+                if (this.sleeping) {
+                    Sound.sleepSound();
+                    this.state = 'sleep';
+                    this.say('Entrando en trance de meditación regenerativa.');
+                } else {
+                    Sound.saberIgnite();
+                    this.state = 'idle';
+                    this.say('Sistemas reactivados. Listo para la misión.');
+                }
+                this.updateUI();
+                this.save();
+            },
+
+            setScene(idx) {
+                this.sceneIdx = idx % Scenes.length;
+                Sound.beep(520, 0.06);
+                document.querySelectorAll('.scene-btn').forEach((btn, i) => {
+                    btn.classList.toggle('active', i === this.sceneIdx);
+                });
+                document.getElementById('hud-env').textContent = Scenes[this.sceneIdx].name;
+                this.say(`Desplegado en: ${Scenes[this.sceneIdx].name}`);
+                this.save();
+            },
+
+            // Minijuego: Desviar Disparos Blaster
+            startMinigame() {
+                if (this.sleeping) return this.say('El comandante duerme. Despiértalo primero.');
+                this.inMinigame = true;
+                this.score = 0;
+                this.combo = 0;
+                this.gameTimer = 18; // 18 segundos
+                this.bolts = [];
+                this.remoteDroid.x = 40;
+                this.remoteDroid.y = 50;
+                document.getElementById('mini-hud').style.display = 'flex';
+                this.say('¡ENTRENAMIENTO! Presiona B o Espacio para desviar los láseres.');
+                Sound.beep(800, 0.1);
+            },
+
+            endMinigame() {
+                this.inMinigame = false;
+                document.getElementById('mini-hud').style.display = 'none';
+                this.fun = this.clamp(this.fun + Math.min(45, this.score * 5));
+                this.say(`¡Entrenamiento concluido! Puntuación final: ${this.score}.`);
+                Sound.saberIgnite();
+                this.updateUI();
+                this.save();
+            },
+
+            swingLightsaberDeflect() {
+                Sound.saberDeflect();
+                this.state = 'attack';
+                this.stateTimer = 16;
+                this.jumpY = -6;
+
+                // Verificar si hay algún proyectil cerca del sable
+                let deflected = false;
+                const petCenterX = this.x + 45;
+                for (let i = this.bolts.length - 1; i >= 0; i--) {
+                    const b = this.bolts[i];
+                    const dist = Math.hypot(b.x - petCenterX, b.y - 120);
+                    if (dist < 48) {
+                        deflected = true;
+                        this.bolts.splice(i, 1);
+                        this.score += 1;
+                        this.combo += 1;
+
+                        // Chispas de desvío
+                        for (let k = 0; k < 15; k++) {
+                            const a = Math.random() * Math.PI * 2;
+                            this.addParticle('spark', b.x, b.y, Math.cos(a) * 3, Math.sin(a) * 3, 20, '#fde047');
+                        }
+                    }
+                }
+
+                if (deflected) {
+                    this.say(`¡Impacto desviado! Combo x${this.combo}`);
+                } else if (this.inMinigame) {
+                    this.combo = 0;
+                }
+                this.updateMiniHUD();
+            },
+
+            updateMiniHUD() {
+                if (!this.inMinigame) return;
+                document.getElementById('mini-score').textContent = this.score;
+                document.getElementById('mini-combo').textContent = `COMBO x${this.combo}`;
+                document.getElementById('mini-time').textContent = Math.ceil(this.gameTimer);
+            },
+
+            // Tick periódico de estadísticas (ahora con consumo significativamente más lento)
+            tick() {
+                this.ticks++;
+                // Multiplicador según el modo de velocidad seleccionado
+                let mult = 0.25; // Modo Tranquilo: consumo muy lento (dura más de 1 hora)
+                if (this.decaySpeed === 'normal') mult = 0.55; // Modo Normal: duración media (~40 min)
+                if (this.decaySpeed === 'rapido') mult = 1.0; // Modo Rápido: mayor dinamismo (~20 min)
+
+                if (this.sleeping) {
+                    this.energy = this.clamp(this.energy + 5);
+                    this.food = this.clamp(this.food - 0.08 * mult);
+                    this.clean = this.clamp(this.clean - 0.04 * mult);
+                    if (this.energy >= 100) {
+                        this.toggleSleep();
+                        this.say('¡Energía completa! Vael despierta listo para el servicio.');
+                    }
+                } else {
+                    // Consumo muy reducido para que las barras duren mucho tiempo
+                    this.food = this.clamp(this.food - 0.22 * mult);
+                    this.fun = this.clamp(this.fun - 0.18 * mult);
+                    this.energy = this.clamp(this.energy - 0.14 * mult);
+                    this.clean = this.clamp(this.clean - 0.10 * mult);
+                }
+
+                // Ciclo de días y evolución (cada ~2.5 minutos de juego activo)
+                if (this.ticks % 45 === 0) {
+                    this.day++;
+                    document.getElementById('age-badge').textContent = `Día ${this.day}`;
+                    if (this.day === 3 || this.day === 7) {
+                        this.say(`¡Evolución alcanzada! Ahora ostenta el rango de ${this.rank().title}.`);
+                        Sound.beep(1200, 0.2);
+                    }
+                }
+
+                // Recordatorios y alertas
+                const led = document.getElementById('status-led');
+                if (this.sleeping) {
+                    led.className = 'led-indicator sleep';
+                } else if (this.food < 25 || this.energy < 20) {
+                    led.className = 'led-indicator alert';
+                    if (this.ticks % 6 === 0) Sound.beep(350, 0.04);
+                    if (this.food < 25) this.say('Atención: Niveles de ración críticos.');
+                    else this.say('Comandante exhausto. Requiere meditación.');
+                } else {
+                    led.className = 'led-indicator';
+                }
+
+                this.updateUI();
+                this.save();
+            },
+
+            updateUI() {
+                document.getElementById('rank-title').textContent = this.rank().title;
+                document.getElementById('val-food').textContent = `${Math.round(this.food)}%`;
+                document.getElementById('val-fun').textContent = `${Math.round(this.fun)}%`;
+                document.getElementById('val-energy').textContent = `${Math.round(this.energy)}%`;
+                document.getElementById('val-clean').textContent = `${Math.round(this.clean)}%`;
+
+                this.renderBar('bar-food', this.food, 'fill-food');
+                this.renderBar('bar-fun', this.fun, 'fill-fun');
+                this.renderBar('bar-energy', this.energy, 'fill-energy');
+                this.renderBar('bar-clean', this.clean, 'fill-clean');
+
+                document.getElementById('sleep-icon').textContent = this.sleeping ? '☀️' : '💤';
+                document.getElementById('sleep-label').textContent = this.sleeping ? 'Despertar' : 'Dormir';
+            },
+
+            renderBar(id, val, cls) {
+                const el = document.getElementById(id);
+                if (!el.children.length) {
+                    for (let i = 0; i < 10; i++) el.appendChild(document.createElement('div'));
+                }
+                const segs = el.children;
+                const filled = Math.ceil(val / 10);
+                for (let i = 0; i < 10; i++) {
+                    segs[i].className = 'stat-seg' + (i < filled ? ' ' + cls : '');
+                }
+            }
+        };
+
+        /* =================================================================
+           BUCLE PRINCIPAL DE ANIMACIÓN Y DIBUJO (60 FPS)
+           ================================================================= */
+        function gameLoop() {
+            Pet.frame++;
+            const f = Pet.frame;
+            const g = cx;
+
+            // Modo Pantalla Retro LCD de Estadísticas (Estilo Tamagotchi Bandai original)
+            if (Pet.showLcdStats) {
+                g.fillStyle = '#0f1712'; // matriz oscura LCD
+                g.fillRect(0, 0, W, H);
+
+                // Rejilla de fósforo verde tenue
+                g.fillStyle = 'rgba(74, 222, 128, 0.05)';
+                for (let x = 0; x < W; x += 3) g.fillRect(x, 0, 1, H);
+                for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
+
+                // Marco LCD retro
+                g.strokeStyle = '#4ade80';
+                g.lineWidth = 1;
+                g.strokeRect(6, 6, W - 12, H - 12);
+                g.strokeRect(9, 9, W - 18, 20);
+
+                g.font = '8px "Press Start 2P", monospace';
+                g.fillStyle = '#4ade80';
+                g.textAlign = 'center';
+                g.fillText('** TELEMETRIA LCD **', W / 2, 23);
+
+                // Telemetría del Comandante Vael
+                g.textAlign = 'left';
+                g.font = '7px "Press Start 2P", monospace';
+                g.fillText(`EDAD: DIA ${Pet.day}`, 18, 48);
+                g.fillText(`PODER: LVL ${Pet.growthLevel}/5`, 18, 62);
+                g.fillText(`RANGO: ${Pet.rank().title.split(' ')[0]}`, 18, 76);
+
+                // Medidores de corazones de Tamagotchi clásico
+                const renderHearts = (val) => {
+                    const count = Math.ceil(val / 25);
+                    let str = '';
+                    for (let i = 0; i < 4; i++) str += (i < count ? '♥ ' : '♡ ');
+                    return str;
+                };
+
+                g.fillText(`FRUTA:   ${renderHearts(Pet.food)}`, 18, 96);
+                g.fillText(`ENTREN:  ${renderHearts(Pet.fun)}`, 18, 111);
+                g.fillText(`ENERGIA: ${renderHearts(Pet.energy)}`, 18, 126);
+                g.fillText(`ARMADURA:${renderHearts(Pet.clean)}`, 18, 141);
+
+                // Mini sprite animado de Vael en la pantalla LCD
+                if (Sprites.loaded) {
+                    const spr = Pet.sleeping ? Sprites.sleep : Sprites.idle;
+                    const bob = Math.round(Math.sin(f * 0.1) * 2);
+                    g.drawImage(spr, W - 78, 66 + bob, 64, 54);
+                }
+
+                // Barra inferior de botones
+                g.fillStyle = 'rgba(74, 222, 128, 0.2)';
+                g.fillRect(10, H - 26, W - 20, 16);
+                g.strokeStyle = '#4ade80';
+                g.strokeRect(10, H - 26, W - 20, 16);
+                g.fillStyle = '#4ade80';
+                g.textAlign = 'center';
+                g.fillText('[ C: SALIR A ESCENARIO ]', W / 2, H - 15);
+                g.textAlign = 'left';
+
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // 1. Dibujar escenario activo
+            Scenes[Pet.sceneIdx].drawBg(g, f, 'Día');
+
+            // 2. Lógica del minijuego (si está activo)
+            if (Pet.inMinigame) {
+                Pet.gameTimer -= 1 / 60;
+                Pet.updateMiniHUD();
+                if (Pet.gameTimer <= 0) {
+                    Pet.endMinigame();
+                } else {
+                    // Mover dron de entrenamiento
+                    const rd = Pet.remoteDroid;
+                    rd.x += rd.vx;
+                    rd.y += rd.vy;
+                    if (rd.x < 25 || rd.x > W - 50) rd.vx *= -1;
+                    if (rd.y < 30 || rd.y > 80) rd.vy *= -1;
+
+                    // Dibujar dron de entrenamiento flotante (Marksman-H)
+                    g.fillStyle = '#64748b';
+                    g.beginPath(); g.arc(rd.x, rd.y, 8, 0, Math.PI * 2); g.fill();
+                    g.fillStyle = '#94a3b8';
+                    g.beginPath(); g.arc(rd.x - 2, rd.y - 2, 4, 0, Math.PI * 2); g.fill();
+                    g.fillStyle = '#ef4444';
+                    g.fillRect(rd.x + 3, rd.y - 1, 3, 2); // Sensor óptico rojo
+
+                    // Disparo láser del dron hacia Vael
+                    rd.shootTimer--;
+                    if (rd.shootTimer <= 0) {
+                        rd.shootTimer = 45 + Math.random() * 30;
+                        const targetX = Pet.x + 45;
+                        const targetY = 120;
+                        const angle = Math.atan2(targetY - rd.y, targetX - rd.x);
+                        Pet.bolts.push({
+                            x: rd.x,
+                            y: rd.y,
+                            vx: Math.cos(angle) * 3.5,
+                            vy: Math.sin(angle) * 3.5,
+                            life: 70
+                        });
+                        Sound.beep(1200, 0.04, 'sawtooth');
+                    }
+
+                    // Actualizar y dibujar rayos láser
+                    for (let i = Pet.bolts.length - 1; i >= 0; i--) {
+                        const b = Pet.bolts[i];
+                        b.x += b.vx;
+                        b.y += b.vy;
+                        b.life--;
+
+                        g.fillStyle = '#ef4444';
+                        g.fillRect(b.x - 3, b.y - 1, 6, 3);
+                        g.fillStyle = '#fef08a';
+                        g.fillRect(b.x - 1, b.y, 3, 1);
+
+                        // Si golpea a Vael sin ser desviado
+                        if (Math.hypot(b.x - (Pet.x + 45), b.y - 120) < 18) {
+                            Pet.bolts.splice(i, 1);
+                            Pet.combo = 0;
+                            Pet.jumpY = 4;
+                            Sound.beep(180, 0.1, 'sawtooth');
+                            Pet.say('¡Impacto de entrenamiento recibido!');
+                            continue;
+                        }
+
+                        if (b.life <= 0 || b.y > 170) {
+                            Pet.bolts.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            // 3. Patrullaje / Movimiento autónomo de Vael
+            if (!Pet.sleeping && !Pet.inMinigame && Pet.state === 'idle') {
+                if (Math.abs(Pet.x - Pet.targetX) < 2) {
+                    if (Math.random() < 0.012) {
+                        Pet.targetX = 35 + Math.random() * (W - 145);
+                    }
+                } else {
+                    const step = 0.55;
+                    if (Pet.targetX > Pet.x) {
+                        Pet.x += step;
+                        Pet.dir = 1;
+                        Pet.state = 'walk';
+                    } else {
+                        Pet.x -= step;
+                        Pet.dir = -1;
+                        Pet.state = 'walk';
+                    }
+                }
+            } else if (Pet.state === 'walk') {
+                if (Math.abs(Pet.x - Pet.targetX) < 2) {
+                    Pet.state = 'idle';
+                } else {
+                    Pet.x += Pet.dir * 0.65;
+                }
+            }
+
+            // Temporizador de estados transitorios (ataque, comida, pulido)
+            if (Pet.stateTimer > 0) {
+                Pet.stateTimer--;
+                if (Pet.stateTimer === 0 && !Pet.sleeping) {
+                    Pet.state = 'idle';
+                }
+            }
+
+            // 4. Parámetros de animación (respiración y salto)
+            Pet.bob = Pet.sleeping ? 0 : Math.round(Math.sin(f * 0.09) * 1.5);
+            if (Pet.jumpY !== 0) {
+                Pet.jumpY *= 0.8;
+                if (Math.abs(Pet.jumpY) < 0.3) Pet.jumpY = 0;
+            }
+
+            // 5. Dibujar Sombra debajo del personaje
+            const shadowX = Pet.x + 48;
+            const shadowY = 162;
+            g.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            g.beginPath();
+            g.ellipse(shadowX, shadowY, 32, 6, 0, 0, Math.PI * 2);
+            g.fill();
+
+            // 6. Selección y Dibujo del Sprite
+            let activeSprite = Sprites.idle;
+            if (Pet.sleeping) {
+                activeSprite = Sprites.sleep;
+            } else if (Pet.state === 'attack') {
+                activeSprite = Sprites.attack;
+            } else if (Pet.state === 'walk') {
+                activeSprite = (Math.floor(f / 10) % 2 === 0) ? Sprites.walk : Sprites.idle;
+            }
+
+            // Dimensiones del personaje en canvas (crece según el nivel de la Semilla del Ermitaño)
+            const scale = Pet.rank().scale; // ~0.115 hasta 0.175
+            const dw = Math.round(870 * scale); // tamaño dinámico según crecimiento
+            const dh = Math.round(737 * scale);
+            const posX = Math.round(Pet.x);
+            const posY = Math.round(160 - dh + Pet.bob + Pet.jumpY);
+
+            // Aura de Ki dorada si consumió Semilla del Ermitaño
+            if (Pet.kiAuraTimer > 0) {
+                Pet.kiAuraTimer--;
+                g.save();
+                const kiPulse = (Math.sin(f * 0.25) + 1) * 0.5;
+                g.shadowColor = '#facc15';
+                g.shadowBlur = 18 + kiPulse * 14;
+                g.strokeStyle = `rgba(250, 204, 21, ${0.45 + kiPulse * 0.45})`;
+                g.lineWidth = 3;
+                g.beginPath();
+                g.ellipse(posX + dw / 2, posY + dh / 2, dw * 0.55 + kiPulse * 5, dh * 0.58 + kiPulse * 5, 0, 0, Math.PI * 2);
+                g.stroke();
+                g.restore();
+            }
+
+            // Aura de resplandor del sable púrpura
+            if (!Pet.sleeping && Sprites.loaded) {
+                const auraGlow = (Math.sin(f * 0.12) + 1) * 0.5;
+                g.save();
+                g.shadowColor = 'rgba(185, 117, 255, 0.8)';
+                g.shadowBlur = 12 + auraGlow * 10;
+            }
+
+            // Dibujar Sprite (con soporte de volteo horizontal según dirección)
+            g.save();
+            if (Pet.dir < 0) {
+                g.translate(posX + dw, posY);
+                g.scale(-1, 1);
+                if (Sprites.loaded) g.drawImage(activeSprite, 0, 0, dw, dh);
+            } else {
+                g.translate(posX, posY);
+                if (Sprites.loaded) g.drawImage(activeSprite, 0, 0, dw, dh);
+            }
+            g.restore();
+
+            if (!Pet.sleeping && Sprites.loaded) {
+                g.restore(); // reset shadow
+            }
+
+            // Dibujar objeto cayendo (Fruta del Diablo o Semilla del Ermitaño)
+            if (Pet.itemAnim) {
+                const it = Pet.itemAnim;
+                it.y += it.vy;
+                const isFruit = it.type === 'fruit';
+                const img = isFruit ? Sprites.devilFruit : Sprites.senzuBean;
+                const size = isFruit ? 28 : 22;
+                if (Sprites.loaded && img) {
+                    g.save();
+                    g.shadowColor = isFruit ? '#a855f7' : '#fde047';
+                    g.shadowBlur = 10;
+                    g.drawImage(img, it.x - size / 2, it.y, size, size);
+                    g.restore();
+                }
+                if (it.y >= it.targetY) {
+                    Pet.itemAnim = null;
+                }
+            }
+
+            // 7. Efecto de "Zzz" en modo dormir
+            if (Pet.sleeping && f % 25 === 0) {
+                Pet.addParticle('zzz', Pet.x + 55, posY + 15, 0.3, -0.6, 45, '#d8b4fe');
+            }
+
+            // 8. Actualizar y Renderizar Partículas
+            for (let i = Pet.particles.length - 1; i >= 0; i--) {
+                const p = Pet.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+
+                const alpha = p.life / p.maxLife;
+                if (p.type === 'spark') {
+                    g.fillStyle = p.col || '#c084fc';
+                    g.fillRect(p.x, p.y, 2, 2);
+                } else if (p.type === 'heart') {
+                    g.fillStyle = `rgba(236, 72, 153, ${alpha})`;
+                    g.fillRect(p.x + 1, p.y, 3, 2);
+                    g.fillRect(p.x + 5, p.y, 3, 2);
+                    g.fillRect(p.x, p.y + 2, 9, 3);
+                    g.fillRect(p.x + 2, p.y + 5, 5, 2);
+                    g.fillRect(p.x + 3, p.y + 7, 3, 2);
+                } else if (p.type === 'swirl') {
+                    // Espiral de Fruta del Diablo
+                    g.strokeStyle = p.col || '#c084fc';
+                    g.lineWidth = 1.5;
+                    g.beginPath();
+                    g.arc(p.x, p.y, (1 - alpha) * 8 + 2, 0, Math.PI * 1.6);
+                    g.stroke();
+                } else if (p.type === 'ki') {
+                    // Partícula dorada de Ki de Semilla del Ermitaño
+                    g.fillStyle = `rgba(250, 204, 21, ${alpha})`;
+                    g.fillRect(p.x, p.y, 2.5, 4);
+                } else if (p.type === 'star') {
+                    g.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    g.fillRect(p.x, p.y - 2, 2, 6);
+                    g.fillRect(p.x - 2, p.y, 6, 2);
+                } else if (p.type === 'zzz') {
+                    g.font = '9px "Press Start 2P", monospace';
+                    g.fillStyle = `rgba(192, 132, 252, ${alpha})`;
+                    g.fillText('Z', p.x, p.y);
+                }
+
+                if (p.life <= 0) Pet.particles.splice(i, 1);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        /* =================================================================
+           EVENTOS Y ENLACES DE BOTONES
+           ================================================================= */
+        // Clic directo sobre el canvas (Interactuar con Vael)
+        cv.addEventListener('click', (e) => {
+            const rect = cv.getBoundingClientRect();
+            const clickX = (e.clientX - rect.left) * (W / rect.width);
+            const clickY = (e.clientY - rect.top) * (H / rect.height);
+
+            if (Pet.inMinigame) {
+                Pet.swingLightsaberDeflect();
+            } else if (clickX >= Pet.x && clickX <= Pet.x + 100 && clickY >= 60 && clickY <= 170) {
+                // Toque al personaje
+                Pet.jumpY = -8;
+                Sound.saberIgnite();
+                const q = Pet.quotes[Math.floor(Math.random() * Pet.quotes.length)];
+                Pet.say(q);
+                for (let i = 0; i < 8; i++) {
+                    Pet.addParticle('spark', clickX, clickY, (Math.random() - 0.5) * 2, -1.2, 25, '#c084fc');
+                }
+            } else {
+                // Indicarle caminar hacia la posición del clic
+                Pet.targetX = Math.max(30, Math.min(W - 130, clickX - 45));
+                Pet.say('Desplazándome al punto designado.');
+                Sound.beep(650, 0.05);
+            }
+        });
+
+        // Botones físicos de la carcasa (Auténtica interacción Bandai Tamagotchi: A = Select, B = Execute, C = Cancel)
+        document.getElementById('btn-a').addEventListener('click', () => {
+            Sound.piezoPipA();
+            if (Pet.showLcdStats) {
+                Pet.showLcdStats = false;
+                return;
+            }
+            if (Pet.inMinigame) {
+                Pet.swingLightsaberDeflect();
+                return;
+            }
+            // Ciclar iconos: -1 -> 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> -1
+            let next = Pet.selectedIcon + 1;
+            if (next > 7) next = -1;
+            Pet.selectIcon(next);
+        });
+
+        document.getElementById('btn-b').addEventListener('click', () => {
+            if (Pet.inMinigame) {
+                Pet.swingLightsaberDeflect();
+                return;
+            }
+            if (Pet.showLcdStats) {
+                Sound.piezoCancelC();
+                Pet.showLcdStats = false;
+                return;
+            }
+            if (Pet.selectedIcon >= 0) {
+                Pet.iconAction(Pet.selectedIcon);
+            } else {
+                // Sin icono seleccionado: interactúa libremente con Vael
+                Sound.piezoChirpB();
+                Pet.jumpY = -9;
+                Pet.state = 'attack';
+                Pet.stateTimer = 25;
+                const quotes = [
+                    '¡A la orden, Comandante!',
+                    '¡Sable listo para desviar disparos!',
+                    '¡La Fuerza fluye en la legión 187!',
+                    '¡Vigilancia constante en el cuadrante!'
+                ];
+                Pet.say(quotes[Math.floor(Math.random() * quotes.length)]);
+                for (let i = 0; i < 8; i++) {
+                    Pet.addParticle('spark', Pet.x + 45, 110, (Math.random() - 0.5) * 3, -1.5, 25, '#c084fc');
+                }
+            }
+        });
+
+        document.getElementById('btn-c').addEventListener('click', () => {
+            Sound.piezoCancelC();
+            if (Pet.showLcdStats) {
+                Pet.showLcdStats = false;
+                return;
+            }
+            if (Pet.selectedIcon >= 0) {
+                Pet.selectIcon(-1); // Cancela selección de icono
+            } else {
+                // Si no hay icono seleccionado, C abre/cierra la pantalla LCD de stats
+                Pet.showLcdStats = true;
+                Pet.say('Telemetría táctica LCD activada.');
+            }
+        });
+
+        // Clic directo en cualquiera de los iconos LCD de la pantalla
+        document.querySelectorAll('.lcd-icon').forEach((icon) => {
+            icon.addEventListener('click', function () {
+                const id = parseInt(this.getAttribute('data-icon'));
+                if (Pet.selectedIcon === id) {
+                    Pet.iconAction(id);
+                } else {
+                    Sound.piezoPipA();
+                    Pet.selectIcon(id);
+                }
+            });
+        });
+
+        // Botón Pinhole de Reset (Agujero lateral con clip/aguja)
+        const resetArea = document.querySelector('.reset-area');
+        if (resetArea) {
+            resetArea.addEventListener('click', () => {
+                Sound.piezoReset();
+                if (confirm('⚠️ ¿Deseas reiniciar los datos de fábrica del Tamagotchi de Vael?')) {
+                    try {
+                        localStorage.removeItem('vael_tamagotchi_save');
+                    } catch (e) { }
+                    Pet.food = 85;
+                    Pet.fun = 80;
+                    Pet.energy = 90;
+                    Pet.clean = 95;
+                    Pet.day = 1;
+                    Pet.growthLevel = 1;
+                    Pet.sleeping = false;
+                    Pet.showLcdStats = false;
+                    Pet.selectIcon(-1);
+                    Pet.updateUI();
+                    Pet.say('¡Reinicio de fábrica completado! Bienvenido de nuevo.');
+                    Sound.piezoPipA();
+                }
+            });
+        }
+
+        // Efecto físico 3D Parallax Tilt al mover el mouse o inclinar el móvil
+        const shell = document.getElementById('shell');
+        const container = document.querySelector('.container');
+        if (shell && container) {
+            container.addEventListener('mousemove', (e) => {
+                const rect = shell.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const deltaX = (e.clientX - centerX) / (rect.width / 2);
+                const deltaY = (e.clientY - centerY) / (rect.height / 2);
+
+                const clampedX = Math.max(-1, Math.min(1, deltaX));
+                const clampedY = Math.max(-1, Math.min(1, deltaY));
+
+                const rotY = (clampedX * 11).toFixed(2);
+                const rotX = (-clampedY * 11).toFixed(2);
+
+                shell.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-2px)`;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                shell.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+
+            // Soporte táctil de inclinación 3D para móviles
+            container.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches[0]) {
+                    const t = e.touches[0];
+                    const rect = shell.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const deltaX = (t.clientX - centerX) / (rect.width / 2);
+                    const deltaY = (t.clientY - centerY) / (rect.height / 2);
+                    const clampedX = Math.max(-1, Math.min(1, deltaX));
+                    const clampedY = Math.max(-1, Math.min(1, deltaY));
+                    const rotY = (clampedX * 9).toFixed(2);
+                    const rotX = (-clampedY * 9).toFixed(2);
+                    shell.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                }
+            }, { passive: true });
+
+            container.addEventListener('touchend', () => {
+                shell.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+            });
+
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (e) => {
+                    if (e.gamma !== null && e.beta !== null) {
+                        const rotY = Math.max(-14, Math.min(14, e.gamma * 0.35)).toFixed(2);
+                        const rotX = Math.max(-14, Math.min(14, (e.beta - 45) * 0.35)).toFixed(2);
+                        shell.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                    }
+                });
+            }
+        }
+
+        // Desbloqueo de audio en primer toque para navegadores móviles (iOS Safari / Chrome Android)
+        window.addEventListener('touchstart', () => Sound.init(), { once: true, passive: true });
+        window.addEventListener('click', () => Sound.init(), { once: true });
+
+        // Botón silenciador
+        document.getElementById('btn-sound').addEventListener('click', () => {
+            Sound.toggleMute();
+        });
+
+        // Botones del dock de acciones rápidas
+        document.getElementById('act-feed').addEventListener('click', () => Pet.feed());
+        document.getElementById('act-senzu').addEventListener('click', () => Pet.eatSenzu());
+        document.getElementById('act-train').addEventListener('click', () => {
+            if (Pet.inMinigame) Pet.swingLightsaberDeflect();
+            else Pet.train();
+        });
+        document.getElementById('act-clean').addEventListener('click', () => Pet.polish());
+        document.getElementById('act-sleep').addEventListener('click', () => Pet.toggleSleep());
+
+        // Selector de escenarios
+        document.querySelectorAll('.scene-btn').forEach((btn) => {
+            btn.addEventListener('click', function () {
+                const s = parseInt(this.getAttribute('data-scene'));
+                Pet.setScene(s);
+            });
+        });
+
+        // Atajos de teclado
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'a' || e.key === 'A') document.getElementById('btn-a').click();
+            else if (e.key === 'b' || e.key === 'B' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('btn-b').click();
+            }
+            else if (e.key === 'c' || e.key === 'C') document.getElementById('btn-c').click();
+            else if (e.key === '1') Pet.feed();
+            else if (e.key === '2') Pet.eatSenzu();
+            else if (e.key === '3') Pet.train();
+            else if (e.key === '4') Pet.polish();
+            else if (e.key === '5') Pet.toggleSleep();
+        });
+
+        // Botón selector de ritmo / velocidad
+        document.getElementById('btn-speed').addEventListener('click', () => {
+            if (Pet.decaySpeed === 'tranquilo') {
+                Pet.decaySpeed = 'normal';
+                document.getElementById('btn-speed').textContent = '⚡';
+                document.getElementById('btn-speed').title = 'Ritmo: Normal (~40 min)';
+                Pet.say('Ritmo de stats ajustado a: Normal.');
+            } else if (Pet.decaySpeed === 'normal') {
+                Pet.decaySpeed = 'rapido';
+                document.getElementById('btn-speed').textContent = '⏱️';
+                document.getElementById('btn-speed').title = 'Ritmo: Dinámico (~20 min)';
+                Pet.say('Ritmo de stats ajustado a: Dinámico.');
+            } else {
+                Pet.decaySpeed = 'tranquilo';
+                document.getElementById('btn-speed').textContent = '⏳';
+                document.getElementById('btn-speed').title = 'Ritmo: Tranquilo (Muy Lento, ~1.5 h)';
+                Pet.say('Ritmo de stats ajustado a: Tranquilo.');
+            }
+            Sound.beep(750, 0.05);
+            Pet.save();
+        });
+
+        // Iniciar bucles del juego (tick cada 3 segundos en vez de 1.5s)
+        Pet.init();
+        requestAnimationFrame(gameLoop);
+        setInterval(() => Pet.tick(), 3000);
+
+        // =================================================================
+        // REGISTRO DE SERVICE WORKER E INSTALACIÓN PWA
+        // =================================================================
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('btn-install');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) installBtn.style.display = 'inline-flex';
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                    Pet.say('¡App instalada en tu dispositivo con éxito!');
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            if (installBtn) installBtn.style.display = 'none';
+            console.log('PWA instalada correctamente');
+        });
+
+        // Registrar Service Worker para soporte offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('ServiceWorker activo:', reg.scope))
+                    .catch((err) => console.log('ServiceWorker error:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
