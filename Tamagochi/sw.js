@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vael-tamagotchi-v2';
+const CACHE_NAME = 'vael-tamagotchi-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
