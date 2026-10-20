@@ -21,6 +21,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Orbitron:wght@600;800;900&family=Press+Start+2P&display=swap"
         rel="stylesheet">
+    <script src="./three.min.js"></script>
     <style>
         :root {
             --tam-body: #f4f6fa;
@@ -160,15 +161,105 @@
             }
         }
 
+        /* === Tamagotchi 3D Hi-Fi Stage & Controls === */
+        .view-mode-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            z-index: 10;
+        }
+
+        .mode-toggle-btn {
+            background: linear-gradient(135deg, #7928ca 0%, #4c1d95 100%);
+            border: 1px solid #c084fc;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            transition: all 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        .mode-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.75);
+        }
+
+        .mode-tool-btn {
+            background: rgba(26, 21, 46, 0.85);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: #cbd5e1;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .mode-tool-btn:hover {
+            background: rgba(147, 51, 234, 0.28);
+            border-color: #a855f7;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .tamagotchi-3d-stage {
+            position: relative;
+            width: 420px;
+            height: 520px;
+            max-width: min(420px, 96vw);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .tamagotchi-3d-stage.grabbing {
+            cursor: grabbing;
+        }
+
+        #webgl-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            outline: none;
+        }
+
+        .canvas-3d-hint {
+            position: absolute;
+            bottom: 6px;
+            font-size: 9.5px;
+            font-family: 'Chakra Petch', sans-serif;
+            color: rgba(196, 181, 253, 0.8);
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
         /* === Physical Tamagotchi Device Shell (Auténtica Forma Ovalada / Huevo) === */
         .tamagotchi-shell {
             position: relative;
-            width: 380px;
-            max-width: min(380px, 94vw);
+            width: 390px;
+            max-width: min(390px, 94vw);
             margin-top: 65px;
             background: radial-gradient(circle at 45% 18%, #ffffff 0%, #f4f6fa 28%, #e2e7f2 60%, #cbd3e2 100%);
-            border-radius: 50% 50% 50% 50% / 54% 54% 46% 46%;
-            padding: 32px 20px 24px;
+            border-radius: 195px 195px 175px 175px / 215px 215px 240px 240px;
+            padding: 46px 24px 28px;
             box-shadow:
                 0 35px 65px -15px rgba(0, 0, 0, 0.85),
                 0 15px 30px rgba(0, 0, 0, 0.6),
@@ -187,12 +278,12 @@
         .tamagotchi-shell::before {
             content: "";
             position: absolute;
-            top: 14px;
-            left: 36px;
-            width: 135px;
+            top: 16px;
+            left: 42px;
+            width: 130px;
             height: 65px;
             border-radius: 50% / 60% 60% 40% 40%;
-            background: radial-gradient(ellipse at 40% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+            background: radial-gradient(ellipse at 40% 30%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 70%);
             transform: rotate(-25deg);
             pointer-events: none;
             z-index: 2;
@@ -212,7 +303,7 @@
         /* Llavero metálico realista colgado arriba con balanceo suave */
         .keychain-assembly {
             position: absolute;
-            top: -58px;
+            top: -53px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -273,8 +364,8 @@
         /* Rejilla de altavoz piezo perforada en la carcasa */
         .speaker-grille {
             position: absolute;
-            top: 34px;
-            right: 38px;
+            top: 42px;
+            right: 44px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -292,8 +383,8 @@
         /* Pinhole de Reset lateral interactivo con aguja/clip */
         .reset-area {
             position: absolute;
-            right: 18px;
-            top: 240px;
+            right: 22px;
+            top: 220px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -331,11 +422,11 @@
         /* Molded Stamp Bandai / Star Wars 187th */
         .shell-stamp {
             text-align: center;
-            margin-top: 8px;
-            font-size: 6.5px;
+            margin-top: 12px;
+            font-size: 6px;
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: #94a3b8;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.15);
             user-select: none;
@@ -346,23 +437,23 @@
         .stripe-left,
         .stripe-right {
             position: absolute;
-            top: 105px;
+            top: 125px;
             width: 8px;
-            height: 110px;
+            height: 100px;
             background: linear-gradient(180deg, var(--tam-purple) 0%, #9333ea 70%, transparent 100%);
             border-radius: 4px;
-            opacity: 0.75;
-            box-shadow: 0 0 8px rgba(147, 51, 234, 0.3);
+            opacity: 0.8;
+            box-shadow: 0 0 8px rgba(147, 51, 234, 0.35);
             pointer-events: none;
         }
 
         .stripe-left {
-            left: 24px;
+            left: 36px;
             transform: rotate(-3deg);
         }
 
         .stripe-right {
-            right: 24px;
+            right: 36px;
             transform: rotate(3deg);
         }
 
@@ -370,10 +461,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 268px;
-            margin: 0 auto 6px;
+            width: 236px;
+            margin: 0 auto 7px;
             padding: 0 4px;
-            font-size: 8.5px;
+            font-size: 7.5px;
+            font-family: 'Orbitron', sans-serif;
             font-weight: 700;
             letter-spacing: 0.5px;
             color: #64748b;
@@ -445,12 +537,12 @@
         /* === Bisel y Marco Exterior de Pantalla LCD (Centrado e insertado en la carcasa) === */
         .screen-bezel {
             position: relative;
-            width: 268px;
+            width: 236px;
             max-width: 100%;
             margin: 0 auto;
             background: linear-gradient(160deg, #181528 0%, #0e0b1c 100%);
-            border-radius: 16px;
-            padding: 6px;
+            border-radius: 14px;
+            padding: 5px;
             box-shadow:
                 inset 0 4px 10px rgba(0, 0, 0, 0.9),
                 inset 0 1px 1px rgba(255, 255, 255, 0.2),
@@ -650,8 +742,8 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            width: 268px;
-            margin: 14px auto 0;
+            width: 230px;
+            margin: 16px auto 0;
             padding: 0;
         }
 
@@ -675,8 +767,8 @@
         }
 
         .btn-well {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: linear-gradient(145deg, #161226, #282142);
             box-shadow:
@@ -689,8 +781,8 @@
         }
 
         .rubber-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, #a855f7 0%, #7928ca 50%, #4c1d95 100%);
             border: none;
@@ -701,7 +793,7 @@
             color: #ffffff;
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 12px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
             cursor: pointer;
             display: flex;
@@ -926,49 +1018,50 @@
             }
 
             .tamagotchi-shell {
+                width: min(375px, 95vw);
                 margin-top: 55px;
-                padding: 26px 12px 18px;
-                border-radius: 50% 50% 50% 50% / 54% 54% 46% 46%;
+                padding: 40px 16px 24px;
+                border-radius: 185px 185px 165px 165px / 210px 210px 240px 240px;
             }
 
             .tamagotchi-shell::before {
-                top: 10px;
-                left: 20px;
-                width: 100px;
-                height: 48px;
+                top: 14px;
+                left: 28px;
+                width: 105px;
+                height: 52px;
             }
 
             .speaker-grille {
-                right: 28px;
-                top: 30px;
+                right: 36px;
+                top: 36px;
             }
 
             .reset-area {
-                right: 10px;
+                right: 14px;
                 top: 200px;
             }
 
             .stripe-left {
-                left: 14px;
-                top: 95px;
-                width: 6px;
+                left: 28px;
+                top: 115px;
+                width: 7px;
                 height: 90px;
             }
 
             .stripe-right {
-                right: 14px;
-                top: 95px;
-                width: 6px;
+                right: 28px;
+                top: 115px;
+                width: 7px;
                 height: 90px;
             }
 
             .commander-crest {
-                width: 240px;
-                font-size: 8px;
+                width: 226px;
+                font-size: 7px;
             }
 
             .screen-bezel {
-                width: 240px;
+                width: 226px;
                 padding: 5px;
                 border-radius: 14px;
             }
@@ -992,24 +1085,24 @@
 
             /* Botones de goma escalados para pantallas táctiles */
             .tamagotchi-buttons {
-                width: 240px;
-                margin-top: 12px;
+                width: 220px;
+                margin-top: 14px;
                 padding: 0;
             }
 
             .btn-well {
-                width: 42px;
-                height: 42px;
+                width: 40px;
+                height: 40px;
             }
 
             .rubber-btn {
-                width: 34px;
-                height: 34px;
-                font-size: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
             }
 
             .btn-label {
-                font-size: 7px;
+                font-size: 6.5px;
             }
 
             /* Dock de acciones y paneles de stats */
@@ -1063,7 +1156,7 @@
         /* Pantallas muy compactas (320px - 360px: iPhone SE 1, Galaxy Fold desplegado) */
         @media (max-width: 360px) {
             .tamagotchi-shell {
-                padding: 22px 10px 16px;
+                padding: 34px 10px 20px;
             }
 
             .stripe-left,
@@ -1071,15 +1164,28 @@
                 display: none;
             }
 
+            .commander-crest {
+                width: 216px;
+                font-size: 6.5px;
+            }
+
+            .screen-bezel {
+                width: 216px;
+            }
+
+            .tamagotchi-buttons {
+                width: 206px;
+            }
+
             .btn-well {
-                width: 40px;
-                height: 40px;
+                width: 38px;
+                height: 38px;
             }
 
             .rubber-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 12px;
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
             }
 
             .dock-btn {
@@ -1114,8 +1220,27 @@
             </div>
         </div>
 
-        <!-- Physical Tamagotchi Device Shell -->
-        <div class="tamagotchi-shell" id="shell">
+        <!-- 3D View Mode Controls -->
+        <div class="view-mode-bar">
+            <button class="mode-toggle-btn active" id="btn-toggle-3d" title="Alternar entre Carcasa 3D Interactiva y Clásica">
+                <span class="mode-icon">🌐</span> <span id="mode-text">Modo 3D Hi-Fi</span>
+            </button>
+            <button class="mode-tool-btn" id="btn-reset-3d" title="Centrar orientación 3D">
+                <span>🎯 Centrar</span>
+            </button>
+            <button class="mode-tool-btn" id="btn-spin-3d" title="Girar 360°">
+                <span>🔄 360°</span>
+            </button>
+        </div>
+
+        <!-- Interactive 3D WebGL Tamagotchi Stage -->
+        <div class="tamagotchi-3d-stage" id="stage-3d">
+            <canvas id="webgl-canvas"></canvas>
+            <div class="canvas-3d-hint">👆 Arrastra para girar en 360° · Clic en botones A, B, C o pantalla</div>
+        </div>
+
+        <!-- Physical Tamagotchi Device Shell (Modo Clásico 2D) -->
+        <div class="tamagotchi-shell" id="shell" style="display: none;">
             <!-- Llavero metálico articulado -->
             <div class="keychain-assembly">
                 <div class="keychain-ring"></div>
@@ -2491,6 +2616,11 @@
                 if (p.life <= 0) Pet.particles.splice(i, 1);
             }
 
+            // Actualizar renderizado WebGL 3D
+            if (window.Tamagotchi3D && Tamagotchi3D.active) {
+                Tamagotchi3D.updateFrame();
+            }
+
             requestAnimationFrame(gameLoop);
         }
 
@@ -2524,6 +2654,7 @@
 
         // Botones físicos de la carcasa (Auténtica interacción Bandai Tamagotchi: A = Select, B = Execute, C = Cancel)
         document.getElementById('btn-a').addEventListener('click', () => {
+            if (window.Tamagotchi3D) Tamagotchi3D.pressButton('a');
             Sound.piezoPipA();
             if (Pet.showLcdStats) {
                 Pet.showLcdStats = false;
@@ -2540,6 +2671,7 @@
         });
 
         document.getElementById('btn-b').addEventListener('click', () => {
+            if (window.Tamagotchi3D) Tamagotchi3D.pressButton('b');
             if (Pet.inMinigame) {
                 Pet.swingLightsaberDeflect();
                 return;
@@ -2571,6 +2703,7 @@
         });
 
         document.getElementById('btn-c').addEventListener('click', () => {
+            if (window.Tamagotchi3D) Tamagotchi3D.pressButton('c');
             Sound.piezoCancelC();
             if (Pet.showLcdStats) {
                 Pet.showLcdStats = false;
@@ -2743,8 +2876,684 @@
             Pet.save();
         });
 
+        // =================================================================
+        // CONTROLADOR DEL TAMAGOTCHI 3D (THREE.JS / WEBGL HI-FI)
+        // =================================================================
+        const Tamagotchi3D = {
+            active: true,
+            scene: null,
+            camera: null,
+            renderer: null,
+            tamagotchiGroup: null,
+            buttons: {},
+            ledMesh: null,
+            ledLight: null,
+            keychainGroup: null,
+            screenTexture: null,
+            compositeCanvas: null,
+            compCtx: null,
+            isDragging: false,
+            prevPointer: { x: 0, y: 0 },
+            pointerDownPos: { x: 0, y: 0 },
+            targetRotY: 0,
+            targetRotX: 0,
+            currentRotY: 0,
+            currentRotX: 0,
+            parallaxX: 0,
+            parallaxY: 0,
+            raycaster: null,
+            mouse: null,
+            spinVelocity: 0,
+
+            init() {
+                const stage = document.getElementById('stage-3d');
+                const canvas = document.getElementById('webgl-canvas');
+                if (!stage || !canvas || typeof THREE === 'undefined') return;
+
+                this.compositeCanvas = document.createElement('canvas');
+                this.compositeCanvas.width = 280;
+                this.compositeCanvas.height = 225;
+                this.compCtx = this.compositeCanvas.getContext('2d');
+
+                this.scene = new THREE.Scene();
+                const width = stage.clientWidth || 400;
+                const height = stage.clientHeight || 500;
+                this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+                this.camera.position.set(0, 0, 7.6);
+
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true,
+                    alpha: true,
+                    powerPreference: 'high-performance'
+                });
+                this.renderer.setSize(width, height);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+                const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+                this.scene.add(ambient);
+
+                const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+                keyLight.position.set(3, 5, 4);
+                this.scene.add(keyLight);
+
+                const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.45);
+                fillLight.position.set(-3, 2, 3);
+                this.scene.add(fillLight);
+
+                const purpleRim = new THREE.DirectionalLight(0xc084fc, 1.1);
+                purpleRim.position.set(0, -3, -4);
+                this.scene.add(purpleRim);
+
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+
+                this.buildModel();
+                this.setupEvents(stage, canvas);
+            },
+
+            buildModel() {
+                this.tamagotchiGroup = new THREE.Group();
+
+                // 1. Eggshell Geometry
+                const eggGeom = new THREE.SphereGeometry(1, 64, 48);
+                const pos = eggGeom.attributes.position;
+                for (let i = 0; i < pos.count; i++) {
+                    let x = pos.getX(i);
+                    let y = pos.getY(i);
+                    let z = pos.getZ(i);
+                    const v = y;
+                    const shoulder = 1.0 + 0.16 * v - 0.1 * v * v;
+                    pos.setXYZ(i, x * 1.88 * shoulder, y * 2.38, z * 0.96 * shoulder);
+                }
+                eggGeom.computeVertexNormals();
+
+                const eggMat = new THREE.MeshPhysicalMaterial({
+                    color: 0xf5f7fb,
+                    roughness: 0.28,
+                    metalness: 0.02,
+                    clearcoat: 0.85,
+                    clearcoatRoughness: 0.18,
+                    reflectivity: 0.8
+                });
+                const eggMesh = new THREE.Mesh(eggGeom, eggMat);
+                eggMesh.name = 'egg';
+                this.tamagotchiGroup.add(eggMesh);
+
+                // Seam line
+                const seamGeom = new THREE.TorusGeometry(1.88, 0.015, 8, 64);
+                seamGeom.scale(1, 1.26, 1);
+                const seamMat = new THREE.MeshStandardMaterial({ color: 0xc8d0de, roughness: 0.6 });
+                const seamMesh = new THREE.Mesh(seamGeom, seamMat);
+                seamMesh.rotation.y = Math.PI / 2;
+                this.tamagotchiGroup.add(seamMesh);
+
+                this.buildStripes();
+                this.buildScreen();
+                this.buildButtons();
+                this.buildKeychain();
+                this.buildBackDetails();
+
+                this.scene.add(this.tamagotchiGroup);
+            },
+
+            buildStripes() {
+                const stripeMat = new THREE.MeshStandardMaterial({
+                    color: 0x9333ea,
+                    roughness: 0.35,
+                    metalness: 0.15,
+                    emissive: 0x6b21a8,
+                    emissiveIntensity: 0.35
+                });
+
+                [-1, 1].forEach((side) => {
+                    const pts = [];
+                    for (let i = 0; i <= 20; i++) {
+                        const t = i / 20;
+                        const y = -0.35 + t * 1.65;
+                        const v = y / 2.38;
+                        const shoulder = 1.0 + 0.16 * v - 0.1 * v * v;
+                        const r = 1.88 * shoulder * Math.sqrt(Math.max(0, 1 - v * v));
+                        const x = side * (r * 0.76);
+                        const z = 0.96 * shoulder * Math.sqrt(Math.max(0, 1 - v * v)) * 0.62;
+                        pts.push(new THREE.Vector3(x, y, z + 0.012));
+                    }
+                    const curve = new THREE.CatmullRomCurve3(pts);
+                    const tube = new THREE.TubeGeometry(curve, 20, 0.052, 8, false);
+                    const tubeMesh = new THREE.Mesh(tube, stripeMat);
+                    this.tamagotchiGroup.add(tubeMesh);
+                });
+            },
+
+            buildScreen() {
+                const bezelGroup = new THREE.Group();
+                bezelGroup.position.set(0, 0.42, 0.74);
+
+                const bezelGeom = new THREE.BoxGeometry(2.36, 1.95, 0.14);
+                const bezelMat = new THREE.MeshStandardMaterial({
+                    color: 0x141026,
+                    roughness: 0.55,
+                    metalness: 0.3
+                });
+                const bezelMesh = new THREE.Mesh(bezelGeom, bezelMat);
+                bezelMesh.name = 'bezel';
+                bezelGroup.add(bezelMesh);
+
+                this.screenTexture = new THREE.CanvasTexture(this.compositeCanvas);
+                this.screenTexture.minFilter = THREE.NearestFilter;
+                this.screenTexture.magFilter = THREE.NearestFilter;
+
+                const screenGeom = new THREE.PlaneGeometry(2.14, 1.72);
+                const screenMat = new THREE.MeshBasicMaterial({ map: this.screenTexture });
+                const screenMesh = new THREE.Mesh(screenGeom, screenMat);
+                screenMesh.position.set(0, 0, 0.076);
+                screenMesh.name = 'screen';
+                bezelGroup.add(screenMesh);
+
+                const glassGeom = new THREE.PlaneGeometry(2.15, 1.73, 16, 16);
+                const gPos = glassGeom.attributes.position;
+                for (let i = 0; i < gPos.count; i++) {
+                    const x = gPos.getX(i), y = gPos.getY(i);
+                    const bulge = 0.04 * (1 - (x / 1.1) ** 2) * (1 - (y / 0.9) ** 2);
+                    gPos.setZ(i, bulge);
+                }
+                glassGeom.computeVertexNormals();
+
+                const glassMat = new THREE.MeshPhysicalMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.38,
+                    roughness: 0.1,
+                    clearcoat: 1.0,
+                    clearcoatRoughness: 0.1,
+                    transmission: 0.3
+                });
+                const glassMesh = new THREE.Mesh(glassGeom, glassMat);
+                glassMesh.position.set(0, 0, 0.082);
+                glassMesh.name = 'glass';
+                bezelGroup.add(glassMesh);
+
+                const ledGeom = new THREE.SphereGeometry(0.065, 16, 16);
+                const ledMat = new THREE.MeshStandardMaterial({
+                    color: 0xc084fc,
+                    emissive: 0x9333ea,
+                    emissiveIntensity: 1.2,
+                    roughness: 0.15
+                });
+                this.ledMesh = new THREE.Mesh(ledGeom, ledMat);
+                this.ledMesh.position.set(0, 1.02, 0.10);
+                this.ledMesh.name = 'led';
+                bezelGroup.add(this.ledMesh);
+
+                this.ledLight = new THREE.PointLight(0xa855f7, 0.8, 2.2);
+                this.ledLight.position.set(0, 1.02, 0.16);
+                bezelGroup.add(this.ledLight);
+
+                this.tamagotchiGroup.add(bezelGroup);
+            },
+
+            buildButtons() {
+                const btnConfigs = [
+                    { id: 'a', label: 'A', x: -0.68, y: -1.22, z: 0.74 },
+                    { id: 'b', label: 'B', x:  0.00, y: -1.14, z: 0.81 },
+                    { id: 'c', label: 'C', x:  0.68, y: -1.22, z: 0.74 }
+                ];
+
+                btnConfigs.forEach((cfg) => {
+                    const wellGeom = new THREE.CylinderGeometry(0.24, 0.24, 0.08, 32);
+                    wellGeom.rotateX(Math.PI / 2);
+                    const wellMat = new THREE.MeshStandardMaterial({ color: 0x18142b, roughness: 0.6 });
+                    const wellMesh = new THREE.Mesh(wellGeom, wellMat);
+                    wellMesh.position.set(cfg.x, cfg.y, cfg.z - 0.03);
+                    this.tamagotchiGroup.add(wellMesh);
+
+                    const btnGeom = new THREE.CylinderGeometry(0.18, 0.20, 0.14, 32);
+                    btnGeom.rotateX(Math.PI / 2);
+                    const btnMat = new THREE.MeshStandardMaterial({
+                        color: 0x9333ea,
+                        roughness: 0.42,
+                        metalness: 0.12,
+                        emissive: 0x4c1d95,
+                        emissiveIntensity: 0.25
+                    });
+                    const btnMesh = new THREE.Mesh(btnGeom, btnMat);
+                    btnMesh.position.set(cfg.x, cfg.y, cfg.z);
+                    btnMesh.name = `btn_${cfg.id}`;
+                    this.tamagotchiGroup.add(btnMesh);
+
+                    this.buttons[cfg.id] = {
+                        mesh: btnMesh,
+                        restZ: cfg.z,
+                        pressZ: cfg.z - 0.07,
+                        pressTimer: 0
+                    };
+                });
+            },
+
+            buildKeychain() {
+                this.keychainGroup = new THREE.Group();
+                this.keychainGroup.position.set(0, 2.38, 0);
+
+                const metalMat = new THREE.MeshStandardMaterial({
+                    color: 0xdbeafe,
+                    metalness: 0.95,
+                    roughness: 0.18
+                });
+
+                const mountGeom = new THREE.BoxGeometry(0.26, 0.14, 0.12);
+                const mountMesh = new THREE.Mesh(mountGeom, metalMat);
+                this.keychainGroup.add(mountMesh);
+
+                const linkGeom1 = new THREE.TorusGeometry(0.12, 0.036, 16, 24);
+                const link1 = new THREE.Mesh(linkGeom1, metalMat);
+                link1.position.set(0, 0.15, 0);
+                this.keychainGroup.add(link1);
+
+                const linkGeom2 = new THREE.TorusGeometry(0.12, 0.036, 16, 24);
+                const link2 = new THREE.Mesh(linkGeom2, metalMat);
+                link2.position.set(0, 0.32, 0);
+                link2.rotation.y = Math.PI / 2;
+                this.keychainGroup.add(link2);
+
+                const ringGeom = new THREE.TorusGeometry(0.38, 0.048, 16, 32);
+                const ringMesh = new THREE.Mesh(ringGeom, metalMat);
+                ringMesh.position.set(0, 0.68, 0);
+                this.keychainGroup.add(ringMesh);
+
+                this.tamagotchiGroup.add(this.keychainGroup);
+            },
+
+            buildBackDetails() {
+                const backGroup = new THREE.Group();
+                backGroup.position.set(0, 0, -0.92);
+
+                const doorGeom = new THREE.PlaneGeometry(1.6, 2.0);
+                const doorMat = new THREE.MeshStandardMaterial({
+                    color: 0xe8ecf4,
+                    roughness: 0.42,
+                    metalness: 0.05
+                });
+                const doorMesh = new THREE.Mesh(doorGeom, doorMat);
+                doorMesh.rotation.y = Math.PI;
+                backGroup.add(doorMesh);
+
+                const screwGeom = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 16);
+                screwGeom.rotateX(Math.PI / 2);
+                const screwMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.25 });
+                const screwMesh = new THREE.Mesh(screwGeom, screwMat);
+                screwMesh.position.set(0, 0.72, 0.01);
+                backGroup.add(screwMesh);
+
+                const resetGeom = new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16);
+                resetGeom.rotateX(Math.PI / 2);
+                const resetMat = new THREE.MeshBasicMaterial({ color: 0x0f0b1a });
+                const resetMesh = new THREE.Mesh(resetGeom, resetMat);
+                resetMesh.position.set(0.55, -0.45, 0.01);
+                resetMesh.name = 'pinhole_reset';
+                backGroup.add(resetMesh);
+
+                for (let r = 0; r < 3; r++) {
+                    const count = r === 0 ? 1 : r * 6;
+                    for (let i = 0; i < count; i++) {
+                        const ang = (i / count) * Math.PI * 2;
+                        const rad = r * 0.12;
+                        const holeGeom = new THREE.CircleGeometry(0.024, 12);
+                        const holeMat = new THREE.MeshBasicMaterial({ color: 0x110c22 });
+                        const holeMesh = new THREE.Mesh(holeGeom, holeMat);
+                        holeMesh.position.set(-0.45 + Math.cos(ang) * rad, -0.45 + Math.sin(ang) * rad, 0.01);
+                        holeMesh.rotation.y = Math.PI;
+                        backGroup.add(holeMesh);
+                    }
+                }
+
+                this.tamagotchiGroup.add(backGroup);
+            },
+
+            pressButton(btnKey) {
+                if (this.buttons[btnKey]) {
+                    this.buttons[btnKey].pressTimer = 1.0;
+                }
+            },
+
+            updateFrame() {
+                if (!this.active || !this.renderer) return;
+
+                this.renderCompositeScreen();
+
+                ['a', 'b', 'c'].forEach((k) => {
+                    const b = this.buttons[k];
+                    if (!b) return;
+                    if (b.pressTimer > 0) {
+                        b.pressTimer -= 0.14;
+                        b.mesh.position.z = b.pressZ;
+                    } else {
+                        b.mesh.position.z += (b.restZ - b.mesh.position.z) * 0.35;
+                    }
+                });
+
+                if (this.ledMesh && this.ledLight) {
+                    const time = performance.now() * 0.003;
+                    if (window.Pet && Pet.sleeping) {
+                        this.ledLight.color.setHex(0x38bdf8);
+                        this.ledMesh.material.emissive.setHex(0x38bdf8);
+                        this.ledLight.intensity = 0.5 + Math.sin(time * 1.5) * 0.3;
+                    } else if (window.Pet && (Pet.food < 25 || Pet.energy < 20)) {
+                        this.ledLight.color.setHex(0xef4444);
+                        this.ledMesh.material.emissive.setHex(0xef4444);
+                        this.ledLight.intensity = Math.sin(time * 6) > 0 ? 1.2 : 0.1;
+                    } else {
+                        this.ledLight.color.setHex(0xc084fc);
+                        this.ledMesh.material.emissive.setHex(0xa855f7);
+                        this.ledLight.intensity = 0.75 + Math.sin(time * 2.2) * 0.35;
+                    }
+                }
+
+                if (this.spinVelocity !== 0) {
+                    this.targetRotY += this.spinVelocity;
+                    this.spinVelocity *= 0.94;
+                    if (Math.abs(this.spinVelocity) < 0.0005) this.spinVelocity = 0;
+                }
+
+                const idleTiltY = (!this.isDragging && this.spinVelocity === 0) ? Math.sin(performance.now() * 0.0012) * 0.06 + this.parallaxX : 0;
+                const idleTiltX = (!this.isDragging && this.spinVelocity === 0) ? Math.cos(performance.now() * 0.0015) * 0.03 + this.parallaxY : 0;
+
+                this.currentRotY += (this.targetRotY + idleTiltY - this.currentRotY) * 0.1;
+                this.currentRotX += (this.targetRotX + idleTiltX - this.currentRotX) * 0.1;
+
+                if (this.tamagotchiGroup) {
+                    this.tamagotchiGroup.rotation.y = this.currentRotY;
+                    this.tamagotchiGroup.rotation.x = this.currentRotX;
+
+                    if (this.keychainGroup) {
+                        const rotDeltaY = (this.targetRotY - this.currentRotY);
+                        const rotDeltaX = (this.targetRotX - this.currentRotX);
+                        this.keychainGroup.rotation.z = Math.sin(performance.now() * 0.0028) * 0.06 - rotDeltaY * 1.8;
+                        this.keychainGroup.rotation.x = -rotDeltaX * 1.2;
+                    }
+                }
+
+                this.renderer.render(this.scene, this.camera);
+            },
+
+            renderCompositeScreen() {
+                if (!this.compCtx) return;
+                const ctx = this.compCtx;
+                const W = 280, H = 225;
+
+                if (window.Pet && Pet.showLcdStats) {
+                    ctx.drawImage(cv, 0, 0, W, H);
+                    if (this.screenTexture) this.screenTexture.needsUpdate = true;
+                    return;
+                }
+
+                ctx.fillStyle = '#080614';
+                ctx.fillRect(0, 0, W, H);
+
+                const sel = window.Pet ? Pet.selectedIcon : -1;
+                const time = performance.now() * 0.005;
+
+                const topIcons = [
+                    { sym: '🍈', label: 'COMIDA' },
+                    { sym: '🫘', label: 'SEMILLA' },
+                    { sym: '⚔️', label: 'COMBATE' },
+                    { sym: '💡', label: 'REPOSO' }
+                ];
+
+                ctx.fillStyle = '#0d0a1c';
+                ctx.fillRect(0, 0, W, 24);
+                ctx.strokeStyle = '#1a162e';
+                ctx.beginPath();
+                ctx.moveTo(0, 24);
+                ctx.lineTo(W, 24);
+                ctx.stroke();
+
+                const slotW = W / 4;
+                topIcons.forEach((ic, i) => {
+                    const cx = i * slotW + slotW / 2;
+                    const isSel = (sel === i);
+
+                    if (isSel) {
+                        const pulse = Math.sin(time) * 0.15 + 0.85;
+                        ctx.fillStyle = `rgba(168, 85, 247, ${pulse * 0.45})`;
+                        ctx.strokeStyle = '#facc15';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.roundRect ? ctx.roundRect(cx - 28, 2, 56, 20, 4) : ctx.rect(cx - 28, 2, 56, 20);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+
+                    ctx.font = '11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(ic.sym, cx, 13);
+
+                    ctx.font = '5px "Press Start 2P", monospace';
+                    ctx.fillStyle = isSel ? '#fef08a' : '#c4b5fd';
+                    ctx.fillText(ic.label, cx, 20);
+                });
+
+                ctx.fillStyle = '#100c22';
+                ctx.fillRect(0, 24, W, 12);
+                ctx.font = '6px "Press Start 2P", monospace';
+                ctx.fillStyle = '#c4b5fd';
+                ctx.textAlign = 'left';
+                const sceneName = (window.Scenes && window.Pet) ? Scenes[Pet.sceneIdx].name : 'BASE ORBITAL';
+                ctx.fillText(sceneName, 6, 32);
+
+                ctx.textAlign = 'right';
+                const decayText = (window.Pet && Pet.decaySpeed === 'rapido') ? '⏱️' : ((window.Pet && Pet.decaySpeed === 'normal') ? '⚡' : '⏳');
+                ctx.fillText(`DÍA ${decayText} 🔊`, W - 6, 32);
+
+                ctx.drawImage(cv, 0, 0, 280, 210, 0, 36, 280, 165);
+
+                const botIcons = [
+                    { sym: '🛡️', label: 'PULIR' },
+                    { sym: '📊', label: 'ESTADO' },
+                    { sym: '🪐', label: 'VIAJE' },
+                    { sym: '🚨', label: 'ALERTA' }
+                ];
+
+                ctx.fillStyle = '#0d0a1c';
+                ctx.fillRect(0, 201, W, 24);
+                ctx.strokeStyle = '#1a162e';
+                ctx.beginPath();
+                ctx.moveTo(0, 201);
+                ctx.lineTo(W, 201);
+                ctx.stroke();
+
+                botIcons.forEach((ic, i) => {
+                    const idx = i + 4;
+                    const cx = i * slotW + slotW / 2;
+                    const isSel = (sel === idx);
+
+                    if (isSel) {
+                        const pulse = Math.sin(time) * 0.15 + 0.85;
+                        ctx.fillStyle = `rgba(168, 85, 247, ${pulse * 0.45})`;
+                        ctx.strokeStyle = '#facc15';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.roundRect ? ctx.roundRect(cx - 28, 203, 56, 20, 4) : ctx.rect(cx - 28, 203, 56, 20);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+
+                    ctx.font = '11px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(ic.sym, cx, 214);
+
+                    ctx.font = '5px "Press Start 2P", monospace';
+                    ctx.fillStyle = isSel ? '#fef08a' : '#c4b5fd';
+                    ctx.fillText(ic.label, cx, 221);
+                });
+
+                if (this.screenTexture) this.screenTexture.needsUpdate = true;
+            },
+
+            setupEvents(stage, canvas) {
+                canvas.addEventListener('pointerdown', (e) => {
+                    this.isDragging = true;
+                    stage.classList.add('grabbing');
+                    this.prevPointer = { x: e.clientX, y: e.clientY };
+                    this.pointerDownPos = { x: e.clientX, y: e.clientY };
+                    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+                });
+
+                window.addEventListener('pointermove', (e) => {
+                    if (this.isDragging) {
+                        const dx = e.clientX - this.prevPointer.x;
+                        const dy = e.clientY - this.prevPointer.y;
+                        this.targetRotY += dx * 0.008;
+                        this.targetRotX = Math.max(-0.95, Math.min(0.95, this.targetRotX + dy * 0.008));
+                        this.prevPointer = { x: e.clientX, y: e.clientY };
+                    } else {
+                        const rect = canvas.getBoundingClientRect();
+                        const normX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                        const normY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+                        if (normX >= -1.2 && normX <= 1.2 && normY >= -1.2 && normY <= 1.2) {
+                            this.parallaxX = normX * 0.14;
+                            this.parallaxY = -normY * 0.12;
+
+                            this.mouse.x = Math.max(-1, Math.min(1, normX));
+                            this.mouse.y = Math.max(-1, Math.min(1, normY));
+                            this.raycaster.setFromCamera(this.mouse, this.camera);
+                            const hits = this.raycaster.intersectObjects(this.tamagotchiGroup.children, true);
+                            const hitBtn = hits.find(h => h.object.name && (h.object.name.startsWith('btn_') || h.object.name === 'screen' || h.object.name === 'glass'));
+                            stage.style.cursor = hitBtn ? 'pointer' : 'grab';
+                        }
+                    }
+                });
+
+                canvas.addEventListener('pointerup', (e) => {
+                    this.isDragging = false;
+                    stage.classList.remove('grabbing');
+                    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+
+                    const dist = Math.hypot(e.clientX - this.pointerDownPos.x, e.clientY - this.pointerDownPos.y);
+                    if (dist < 6) {
+                        this.handleClick(e, canvas);
+                    }
+                });
+
+                canvas.addEventListener('dblclick', () => {
+                    this.resetView();
+                });
+
+                const btnReset = document.getElementById('btn-reset-3d');
+                if (btnReset) btnReset.addEventListener('click', () => this.resetView());
+
+                const btnSpin = document.getElementById('btn-spin-3d');
+                if (btnSpin) btnSpin.addEventListener('click', () => {
+                    this.spinVelocity = 0.22;
+                    Sound.beep(900, 0.08);
+                });
+
+                const btnToggle = document.getElementById('btn-toggle-3d');
+                if (btnToggle) {
+                    btnToggle.addEventListener('click', () => this.toggleMode());
+                }
+
+                window.addEventListener('resize', () => {
+                    if (!this.renderer || !this.camera) return;
+                    const w = stage.clientWidth;
+                    const h = stage.clientHeight;
+                    this.camera.aspect = w / h;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(w, h);
+                });
+            },
+
+            handleClick(e, canvas) {
+                const rect = canvas.getBoundingClientRect();
+                this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                const hits = this.raycaster.intersectObjects(this.tamagotchiGroup.children, true);
+
+                for (const hit of hits) {
+                    const name = hit.object.name;
+                    if (name === 'btn_a') {
+                        this.pressButton('a');
+                        document.getElementById('btn-a').click();
+                        return;
+                    } else if (name === 'btn_b') {
+                        this.pressButton('b');
+                        document.getElementById('btn-b').click();
+                        return;
+                    } else if (name === 'btn_c') {
+                        this.pressButton('c');
+                        document.getElementById('btn-c').click();
+                        return;
+                    } else if (name === 'pinhole_reset') {
+                        const resetArea = document.querySelector('.reset-area');
+                        if (resetArea) resetArea.click();
+                        return;
+                    } else if (name === 'screen' || name === 'glass') {
+                        if (hit.uv) {
+                            const uv = hit.uv;
+                            const compY = (1 - uv.y) * 225;
+                            const compX = uv.x * 280;
+
+                            if (compY < 24) {
+                                const iconId = Math.min(3, Math.floor(compX / (280 / 4)));
+                                Pet.iconAction(iconId);
+                                return;
+                            }
+                            if (compY > 201) {
+                                const iconId = 4 + Math.min(3, Math.floor(compX / (280 / 4)));
+                                Pet.iconAction(iconId);
+                                return;
+                            }
+                            if (Pet.inMinigame) {
+                                Pet.swingLightsaberDeflect();
+                            } else {
+                                Pet.jumpY = -8;
+                                Sound.saberIgnite();
+                                const q = Pet.quotes[Math.floor(Math.random() * Pet.quotes.length)];
+                                Pet.say(q);
+                                for (let i = 0; i < 8; i++) {
+                                    Pet.addParticle('spark', Pet.x + 45, 110, (Math.random() - 0.5) * 2, -1.2, 25, '#c084fc');
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+            },
+
+            resetView() {
+                this.targetRotX = 0;
+                this.targetRotY = 0;
+                this.spinVelocity = 0;
+                Sound.beep(1100, 0.05);
+            },
+
+            toggleMode() {
+                this.active = !this.active;
+                const stage = document.getElementById('stage-3d');
+                const shell = document.getElementById('shell');
+                const modeText = document.getElementById('mode-text');
+                const btnToggle = document.getElementById('btn-toggle-3d');
+
+                if (this.active) {
+                    if (stage) stage.style.display = 'flex';
+                    if (shell) shell.style.display = 'none';
+                    if (modeText) modeText.textContent = 'Modo 3D Hi-Fi';
+                    if (btnToggle) btnToggle.classList.add('active');
+                    Pet.say('Modo 3D Hi-Fi activado. ¡Gira el Tamagotchi en 360°!');
+                } else {
+                    if (stage) stage.style.display = 'none';
+                    if (shell) shell.style.display = 'block';
+                    if (modeText) modeText.textContent = 'Modo Clásico 2D';
+                    if (btnToggle) btnToggle.classList.remove('active');
+                    Pet.say('Modo Clásico 2D activado.');
+                }
+                Sound.piezoChirpB();
+            }
+        };
+
         // Iniciar bucles del juego (tick cada 3 segundos en vez de 1.5s)
         Pet.init();
+        Tamagotchi3D.init();
         requestAnimationFrame(gameLoop);
         setInterval(() => Pet.tick(), 3000);
 
